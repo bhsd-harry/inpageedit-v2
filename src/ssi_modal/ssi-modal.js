@@ -1,8 +1,8 @@
-;(function (root, factory) {
-  //@author http://ifandelse.com/its-not-hard-making-your-library-support-amd-and-commonjs/
+//@author http://ifandelse.com/its-not-hard-making-your-library-support-amd-and-commonjs/
 
+;(function (root, factory) {
   root.ssi_modal = factory(root.jQuery)
-})(this, function ($) {
+})(globalThis, function ($) {
   var animationSupport = checkAnimationSupport()
   var openedModals = 0
   var sharedBackdrop = 0
@@ -164,7 +164,7 @@
       setAnimations(this)
     } else {
       this.options[options] = value
-      if (options === 'animation' || 'modalAnimation' || 'backdropAnimation') {
+      if (options === 'animation' || options === 'modalAnimation' || options === 'backdropAnimation') {
         setAnimations(this)
       }
     }
@@ -195,7 +195,7 @@
    */
   Ssi_modal.prototype.get$modal = function (id) {
     id = id || this.modalId
-    return this.$modal || $('#' + id)
+    return this.$modal || $(document.getElementById(id))
   }
   /**
    * Returns the title element of the modal.
@@ -270,7 +270,7 @@
    * @returns {JQuery}
    */
   Ssi_modal.prototype.get$backdrop = function () {
-    return this.$backdrop || $('#' + this.backdropId)
+    return this.$backdrop || $(document.getElementById(this.backdropId))
   }
 
   var time = null
@@ -381,9 +381,10 @@
    * Initialize the buttons element if it is necessary and registers tha buttons.
    * @param {object[]} buttons -The buttons that will be added to the element.
    * @param {string} area -The area that we'll append the buttons.
+   * @param {jQuery} $modalWindow -the modalWindow element where buttons are appended to
    * @returns {*}
    */
-  Ssi_modal.prototype.setButtons = function (buttons, area) {
+  Ssi_modal.prototype.setButtons = function (buttons, area, $modalWindow) {
     var $buttonsArea,
       fixHeight = false
     buttons = toArray(buttons)
@@ -410,7 +411,7 @@
     var leftAreaArray = []
     var rightAreaArray = []
     for (var i = 0, $btn; i < length; i++) {
-      $btn = this.generateButton(buttons[i])
+      $btn = this.generateButton(buttons[i], $modalWindow)
       if (buttons[i].side === 'left') {
         leftAreaArray.push($btn)
       } else {
@@ -550,7 +551,7 @@
     var $backdrop
     if (typeof orphanBackdrop === 'string') {
       //if an orphan backdrop exists
-      var $orphanBackdrop = $('#' + orphanBackdrop)
+      var $orphanBackdrop = $(document.getElementById(orphanBackdrop))
       this.backdropId = orphanBackdrop //change the id to the same as the new modal
       $backdrop = $orphanBackdrop.attr(
         'class',
@@ -711,7 +712,7 @@
       typeof modalObj.options.buttons !== 'undefined' &&
       !$.isEmptyObject(modalObj.options.buttons)
     ) {
-      windowContent.push(modalObj.setButtons(modalObj.options.buttons, false))
+      windowContent.push(modalObj.setButtons(modalObj.options.buttons, false, $modalWindow))
     }
     $modalWindow.append(windowContent)
     return $modalWindow
@@ -720,11 +721,12 @@
   /**
    *Generates a button according to the options.
    * @param {object} buttonOptions -The button options.
+   * @param {jQuery} $modalWindow -the modalWindow element where the button is appended to
    * @constructor
    * @returns {jQuery}
    */
 
-  Ssi_modal.prototype.generateButton = function (buttonOptions) {
+  Ssi_modal.prototype.generateButton = function (buttonOptions, $modalWindow) {
     var defaults = {
       className: '',
       enableAfter: false,
@@ -772,12 +774,22 @@
       $btn.append($count)
     }
     //append button to selected object and set click event
-    if (buttonOptions.keyPress) {
-      $('body').on('keydown.ssi_modal', function (e) {
-        if (e.keyCode == buttonOptions.keyPress && !$btn.is(':disabled')) {
-          $btn.trigger('click')
-        }
-      })
+    if (typeof buttonOptions.keyPress === 'string') {
+      buttonOptions.keyPress = buttonOptions.keyPress.replace(/(ctrl|shift|alt)[-+]/gi, function(_, p1) {
+        buttonOptions[p1.toLowerCase()] = true
+        return ''
+      }).toLowerCase();
+      (buttonOptions.keyPressBody || $modalWindow === undefined ? $(document.body) : $modalWindow)
+        .on('keydown.ssi_modal', function (e) {
+          if ((e.ctrlKey || e.metaKey) == buttonOptions.ctrl &&
+            e.shiftKey == buttonOptions.shift &&
+            e.altKey == buttonOptions.alt &&
+            e.key.toLowerCase() == buttonOptions.keyPress &&
+            !$btn.is(':disabled')) {
+            e.preventDefault()
+            $btn.trigger('click')
+          }
+        })
     }
     if (buttonOptions.focused) {
       setTimeout(function () {
@@ -950,7 +962,6 @@
    * @return {Ssi_modal}
    */
   Ssi_modal.prototype.showBackdrop = function () {
-    var modalObj = this
     var $backdrop = this.get$backdrop().addClass('ssi-openedDialog')
 
     $backdrop
@@ -1210,7 +1221,7 @@
       if ($element[0]) {
         var data = $element.data('ssi-modal') //then check if object exists in data-ssi-modal
         if (data) {
-          if (!$('#' + data.modalId)[0]) {
+          if (!document.getElementById(data.modalId)) {
             // if data exists but no modal exists(probably removed by button)
             $element.data('ssi-modal', '') //then remove data-ssi-modal
             return false
@@ -1403,7 +1414,7 @@
   }
 
   isDataURL.regex =
-    /^\s*data:([a-z]+\/[a-z0-9\-\+]+(;[a-z\-]+\=[a-z0-9\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i
+    /^\s*data:([a-z]+\/[a-z0-9\-+]+(;[a-z-]+=[a-z0-9-]+)?)?(;base64)?,[a-z0-9!$&',()*+,;=\-._~:@/?%\s]*\s*$/i
 
   var imgBoxOptions = { 'ssi-mainOption': {} } //this will hold the imgbox options when will call ssi_modal.imgBox function
   ssi_modal.imgBox = function (options, group) {
@@ -1759,7 +1770,7 @@
         resetOnHover: true,
       },
     }
-    if (type === 'confirm' || 'dialog') {
+    if (type === 'confirm' || type === 'dialog') {
       options.okBtn = $.extend({}, defaults.okBtn, options.okBtn)
       options.cancelBtn = $.extend({}, defaults.cancelBtn, options.cancelBtn)
     }
@@ -1928,10 +1939,7 @@
   //@author https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Animations/Detecting_CSS_animation_support
   function checkAnimationSupport() {
     var animation = false,
-      animationstring = 'animation',
-      keyframeprefix = '',
       domPrefixes = 'Webkit Moz O ms Khtml'.split(' '),
-      pfx = '',
       elm = document.createElement('div')
 
     if (elm.style.animationName !== undefined) {
@@ -1941,9 +1949,6 @@
     if (animation === false) {
       for (var i = 0; i < domPrefixes.length; i++) {
         if (elm.style[domPrefixes[i] + 'AnimationName'] !== undefined) {
-          pfx = domPrefixes[i]
-          animationstring = pfx + 'Animation'
-          keyframeprefix = '-' + pfx.toLowerCase() + '-'
           animation = true
           break
         }
