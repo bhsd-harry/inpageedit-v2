@@ -1,6 +1,5 @@
 // 导入方法
 const _dir = require('./_dir')
-const { loadScript } = require('./loadScript')
 const { initQueryData } = require('./initQueryData')
 const { loadStyles } = require('./loadStyles')
 const { updateNotice } = require('./updateNotice')
@@ -22,9 +21,10 @@ module.exports = async function init() {
   // 加载样式表
   loadStyles(noCache)
   // 等待前置项目
+  require('../ssi_modal/ssi-modal.js')
+  window.ssi_modal = ssi_modal
   await Promise.all([
     mw.loader.using(['mediawiki.api', 'mediawiki.util', 'mediawiki.user']),
-    loadScript(`//cdn.jsdelivr.net/gh/bhsd-harry/Plugins@dev/lib/ssi-modal/ssi-modal.min.js`),
     initQueryData(),
   ])
 

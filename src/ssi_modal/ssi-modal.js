@@ -774,16 +774,17 @@
       $btn.append($count)
     }
     //append button to selected object and set click event
-    if (typeof buttonOptions.keyPress === 'string') {
+    if (buttonOptions.keyPress) {
       buttonOptions.keyPress = buttonOptions.keyPress.replace(/(ctrl|shift|alt)[-+]/gi, function(_, p1) {
         buttonOptions[p1.toLowerCase()] = true
         return ''
-      }).toLowerCase();
-      (buttonOptions.keyPressBody || $modalWindow === undefined ? $(document.body) : $modalWindow)
+      }).toLowerCase()
+      $btn.data('buttonOptions', buttonOptions)
+      ;(buttonOptions.keyPressBody || $modalWindow === undefined ? $(document.body) : $modalWindow)
         .on('keydown.ssi_modal', function (e) {
-          if ((e.ctrlKey || e.metaKey) == buttonOptions.ctrl &&
-            e.shiftKey == buttonOptions.shift &&
-            e.altKey == buttonOptions.alt &&
+          if ((e.ctrlKey || e.metaKey) == !!buttonOptions.ctrl &&
+            e.shiftKey == !!buttonOptions.shift &&
+            e.altKey == !!buttonOptions.alt &&
             e.key.toLowerCase() == buttonOptions.keyPress &&
             !$btn.is(':disabled')) {
             e.preventDefault()
