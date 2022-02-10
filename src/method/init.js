@@ -4,10 +4,8 @@ const { loadScript } = require('./loadScript')
 const { initQueryData } = require('./initQueryData')
 const { loadStyles } = require('./loadStyles')
 const { updateNotice } = require('./updateNotice')
-const { syncI18nData } = require('./syncI18nData')
 
 const version = require('../module/version')
-const { pluginCDN } = require('../module/api')
 
 /**
  * @method initMain
@@ -26,7 +24,6 @@ module.exports = async function init() {
   // 等待前置项目
   await Promise.all([
     mw.loader.using(['mediawiki.api', 'mediawiki.util', 'mediawiki.user']),
-    syncI18nData(noCache),
     loadScript(`//cdn.jsdelivr.net/gh/bhsd-harry/Plugins@dev/lib/ssi-modal/ssi-modal.min.js`),
     initQueryData(),
   ])
