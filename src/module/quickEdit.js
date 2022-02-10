@@ -300,6 +300,7 @@ var quickEdit = function (options) {
         side: 'left',
         label: _msg('editor-button-save'),
         className: 'btn btn-primary leftBtn hideBeforeLoaded save-btn',
+        keyPress: 'ctrl-s',
         method(e, modal) {
           ssi_modal.confirm(
             {
@@ -342,6 +343,7 @@ var quickEdit = function (options) {
         side: 'left',
         label: _msg('editor-button-preview'),
         className: 'btn btn-secondary leftBtn hideBeforeLoaded',
+        keyPress: 'escape',
         method() {
           _analysis('preview_edit')
           var text = $editArea.val()
