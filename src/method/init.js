@@ -27,7 +27,7 @@ module.exports = async function init() {
   await Promise.all([
     mw.loader.using(['mediawiki.api', 'mediawiki.util', 'mediawiki.user']),
     syncI18nData(noCache),
-    loadScript(`${pluginCDN}/lib/ssi-modal/ssi-modal.js`),
+    loadScript(`//cdn.jsdelivr.net/gh/bhsd-harry/Plugins@dev/lib/ssi-modal/ssi-modal.min.js`),
     initQueryData(),
   ])
 
