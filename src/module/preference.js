@@ -485,6 +485,11 @@ const preference = {
           $tabContent.find('#analysis-container').html('')
           /** @type {{ userName: string; siteUrl: string; siteName: string; _total: number; features: { featureID: string; count: number }[] }} */
           const data = ret.body.query[0]
+          if (data === undefined) {
+            $tabContent.prev('.tab-list').find('a[href="#analysis"]').parent().remove()
+            $tabContent.children('#analysis').remove()
+            return
+          }
           const total = data._total
           const dashUrl = `${analyticsDash}/user?${$.param({
             userName,
