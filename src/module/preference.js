@@ -366,6 +366,7 @@ const preference = {
         {
           label: _msg('preference-save'),
           className: 'btn btn-primary',
+          keyPress: 'ctrl-s',
           method: function (a, modal) {
             preference.set($modalContent.data())
             // console.info('[InPageEdit] Set preference', $modalContent.data())
