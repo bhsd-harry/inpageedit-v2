@@ -3,6 +3,7 @@ var config = mw.config.get()
 
 const { _analytics: _analysis } = require('./_analytics')
 const { _msg } = require('./_msg')
+const { preference } = require('./preference')
 
 const { $br, $progress } = require('./_elements')
 
@@ -37,6 +38,7 @@ var quickDiff = function (param) {
     $loading = $($progress)
 
     ssi_modal.show({
+      outSideClose: preference.get('outSideClose'),
       className: 'in-page-edit quick-diff',
       sizeClass: 'large',
       fixedHeight: true,

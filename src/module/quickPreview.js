@@ -1,5 +1,6 @@
 const { _msg } = require('./_msg')
 const { $progress } = require('./_elements')
+const { preference } = require('./preference')
 
 var mwApi = new mw.Api()
 
@@ -20,6 +21,7 @@ var quickPreview = function (params, modalSize = 'large', center = false) {
   var timestamp = new Date().getTime()
   console.time('[InPageEdit] Request preview')
   ssi_modal.show({
+    outSideClose: preference.get('outSideClose'),
     sizeClass: new RegExp(
       /dialog|small|smallToMedium|medium|mediumToLarge|large|full|auto/
     ).test(modalSize)
