@@ -366,7 +366,6 @@ var quickEdit = function (options) {
       {
         label: _msg('cancel'),
         className: 'btn btn-danger',
-        keyPress: 'escape',
         method(e, modal) {
           modal.close()
         },
