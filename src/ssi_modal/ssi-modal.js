@@ -775,11 +775,10 @@
     }
     //append button to selected object and set click event
     if (buttonOptions.keyPress) {
-      buttonOptions.keyPress = buttonOptions.keyPress.replace(/(ctrl|shift|alt)[-+]/gi, function(_, p1) {
+      buttonOptions.keyPress = buttonOptions.keyPress.replace(/(ctrl|shift|alt)[-+]/gi, function (_, p1) {
         buttonOptions[p1.toLowerCase()] = true
         return ''
       }).toLowerCase()
-      $btn.data('buttonOptions', buttonOptions)
       ;(buttonOptions.keyPressBody || $modalWindow === undefined ? $(document.body) : $modalWindow)
         .on('keydown.ssi_modal', function (e) {
           if ((e.ctrlKey || e.metaKey) == !!buttonOptions.ctrl &&
