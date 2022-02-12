@@ -78,7 +78,6 @@ var quickRedirect = function (type = 'to') {
       {
         label: _msg('confirm'),
         className: 'btn btn-primary btn-single okBtn',
-        keyPress: 'ctrl-s',
         method: function (a, modal) {
           target = $('.in-page-edit.quick-redirect #redirect-page').val()
           if (
