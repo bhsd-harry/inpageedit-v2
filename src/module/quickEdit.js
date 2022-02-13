@@ -380,6 +380,8 @@ var quickEdit = function (options) {
             title: options.page,
             text: text,
             pst: true,
+            section: options.section === 'new' ? 'new' : undefined,
+            sectiontitle: options.section === 'new' ? $editSection.val() : undefined,
           })
         },
       },
