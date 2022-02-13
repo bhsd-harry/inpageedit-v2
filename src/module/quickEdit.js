@@ -313,11 +313,18 @@ var quickEdit = function (options) {
         method(e, modal) {
           function confirm(result) {
             if (result) {
+              let summaryVal = $optionsLabel.find('.editSummary').val()
+              const sectiontitle = options.section === 'new' ? $editSection.val() : undefined
+              if (options.section === 'new') {
+                summaryVal = summaryVal.replace(
+                  /\$section/gi,
+                  `/* ${sectiontitle} */`
+                )
+              }
               const text = $editArea.val(),
                 minor = $optionsLabel.find('.editMinor').prop('checked'),
                 section = options.section,
-                sectiontitle = options.section === 'new' ? $editSection.val() : undefined,
-                summary = $optionsLabel.find('.editSummary').val(),
+                summary = summaryVal,
                 isWatch = $optionsLabel.find('.watchList').prop('checked')
               postArticle(
                 {
@@ -579,7 +586,7 @@ var quickEdit = function (options) {
                 '</span>'
             )
           options.jumpTo = '#' + data.parse.sections[0].anchor
-        } else {
+        } else if (options.section !== 'new') {
           summaryVal = $optionsLabel.find('.editSummary').val()
           summaryVal = summaryVal.replace(/\$section/gi, '')
           $optionsLabel.find('.editSummary').val(summaryVal)
