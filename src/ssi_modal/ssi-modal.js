@@ -165,7 +165,11 @@
       setAnimations(this)
     } else {
       this.options[options] = value
-      if (options === 'animation' || options === 'modalAnimation' || options === 'backdropAnimation') {
+      if (
+        options === 'animation' ||
+        options === 'modalAnimation' ||
+        options === 'backdropAnimation'
+      ) {
         setAnimations(this)
       }
     }
@@ -658,31 +662,40 @@
     for (var i = 0, icon; i < iconsLength; i++) {
       icon = icons[i]
       ;(function (icon) {
-        var $icon = $('<a class="' + icon.className + '"></a>').on('click', function (e) {
-          e.preventDefault()
-          if (typeof icon.method === 'function') {
-            $.proxy(icon.method, this)(e, modalObj)
+        var $icon = $('<a class="' + icon.className + '"></a>').on(
+          'click',
+          function (e) {
+            e.preventDefault()
+            if (typeof icon.method === 'function') {
+              $.proxy(icon.method, this)(e, modalObj)
+            }
           }
-        })
+        )
         iconArray.push($icon)
         if (icon.keyPress) {
           if ($modalWindow && !icon.keyPressBody) {
             $modalWindow.prop('tabindex', -1)
           }
-          icon.keyPress = icon.keyPress.replace(/(ctrl|shift|alt)[-+]/gi, function (_, p1) {
-            icon[p1.toLowerCase()] = true
-            return ''
-          }).toLowerCase()
-          ;(icon.keyPressBody || $modalWindow === undefined ? $(document.body) : $modalWindow)
-            .on('keydown.ssi_modal', function (e) {
-              if ((e.ctrlKey || e.metaKey) == !!icon.ctrl &&
-                e.shiftKey == !!icon.shift &&
-                e.altKey == !!icon.alt &&
-                e.key.toLowerCase() == icon.keyPress) {
-                e.preventDefault()
-                $icon.trigger('click')
-              }
+          icon.keyPress = icon.keyPress
+            .replace(/(ctrl|shift|alt)[-+]/gi, function (_, p1) {
+              icon[p1.toLowerCase()] = true
+              return ''
             })
+            .toLowerCase()
+          ;(icon.keyPressBody || $modalWindow === undefined
+            ? $(document.body)
+            : $modalWindow
+          ).on('keydown.ssi_modal', function (e) {
+            if (
+              (e.ctrlKey || e.metaKey) == !!icon.ctrl &&
+              e.shiftKey == !!icon.shift &&
+              e.altKey == !!icon.alt &&
+              e.key.toLowerCase() == icon.keyPress
+            ) {
+              e.preventDefault()
+              $icon.trigger('click')
+            }
+          })
         }
       })(icon)
     }
@@ -724,14 +737,18 @@
       })
     }
     if (modalObj.options.iconButtons.length > 0) {
-      windowContent.push(modalObj.setIcons(modalObj.options.iconButtons, $modalWindow))
+      windowContent.push(
+        modalObj.setIcons(modalObj.options.iconButtons, $modalWindow)
+      )
     }
     windowContent.push($modalContent)
     if (
       typeof modalObj.options.buttons !== 'undefined' &&
       !$.isEmptyObject(modalObj.options.buttons)
     ) {
-      windowContent.push(modalObj.setButtons(modalObj.options.buttons, false, $modalWindow))
+      windowContent.push(
+        modalObj.setButtons(modalObj.options.buttons, false, $modalWindow)
+      )
     }
     $modalWindow.append(windowContent)
     return $modalWindow
@@ -797,21 +814,27 @@
       if ($modalWindow && !buttonOptions.keyPressBody) {
         $modalWindow.prop('tabindex', -1)
       }
-      buttonOptions.keyPress = buttonOptions.keyPress.replace(/(ctrl|shift|alt)[-+]/gi, function (_, p1) {
-        buttonOptions[p1.toLowerCase()] = true
-        return ''
-      }).toLowerCase()
-      ;(buttonOptions.keyPressBody || $modalWindow === undefined ? $(document.body) : $modalWindow)
-        .on('keydown.ssi_modal', function (e) {
-          if ((e.ctrlKey || e.metaKey) == !!buttonOptions.ctrl &&
-            e.shiftKey == !!buttonOptions.shift &&
-            e.altKey == !!buttonOptions.alt &&
-            e.key.toLowerCase() == buttonOptions.keyPress &&
-            !$btn.is(':disabled')) {
-            e.preventDefault()
-            $btn.trigger('click')
-          }
+      buttonOptions.keyPress = buttonOptions.keyPress
+        .replace(/(ctrl|shift|alt)[-+]/gi, function (_, p1) {
+          buttonOptions[p1.toLowerCase()] = true
+          return ''
         })
+        .toLowerCase()
+      ;(buttonOptions.keyPressBody || $modalWindow === undefined
+        ? $(document.body)
+        : $modalWindow
+      ).on('keydown.ssi_modal', function (e) {
+        if (
+          (e.ctrlKey || e.metaKey) == !!buttonOptions.ctrl &&
+          e.shiftKey == !!buttonOptions.shift &&
+          e.altKey == !!buttonOptions.alt &&
+          e.key.toLowerCase() == buttonOptions.keyPress &&
+          !$btn.is(':disabled')
+        ) {
+          e.preventDefault()
+          $btn.trigger('click')
+        }
+      })
     }
     if (buttonOptions.focused) {
       setTimeout(function () {
@@ -878,18 +901,20 @@
         this.$modal = $modal
         $modal.one('onShow.ssi-modal', function () {
           if (modalObj.options.outSideClose === true) {
-            $modal.on('click', function (e) {
-              if (e.target === this) {
-                e.preventDefault()
-                modalObj.close()
-              }
-            })
-            wrapper.on('click', function (e) {
-              if (e.target === this) {
-                e.preventDefault()
-                modalObj.close()
-              }
-            })
+            var outSide = false
+            $modal
+              .on('mousedown', function (e) {
+                if (!e.target.closest('#ssi-modalWindow')) {
+                  outSide = true
+                }
+              })
+              .on('mouseup', function (e) {
+                if (outSide && !e.target.closest('#ssi-modalWindow')) {
+                  modalObj.close()
+                } else {
+                  outSide = false
+                }
+              })
           }
         })
       }
