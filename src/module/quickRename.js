@@ -58,7 +58,11 @@ var quickRename = function (from, to) {
       $br,
 
       $('<label>').append(
-        $('<input>', { type: 'checkbox', id: 'noredirect', disabled: !_hasRight('suppressredirect') }),
+        $('<input>', {
+          type: 'checkbox',
+          id: 'noredirect',
+          disabled: !_hasRight('suppressredirect'),
+        }),
         $('<span>', { text: _msg('rename-noredirect') })
       )
     ),

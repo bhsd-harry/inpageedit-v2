@@ -199,8 +199,13 @@ var quickEdit = function (options) {
     style: 'margin-top: 0;',
   })
   var customizedWatchList = false,
-    unsetWatchList = [null, '', 'nochange', 'preferences'].includes(options.watchList)
-  if (options.watchList && !['nochange', 'preferences', 'unwatch'].includes(options.watchList)) {
+    unsetWatchList = [null, '', 'nochange', 'preferences'].includes(
+      options.watchList
+    )
+  if (
+    options.watchList &&
+    !['nochange', 'preferences', 'unwatch'].includes(options.watchList)
+  ) {
     options.watchList = true
   } else if (!options.watchList || options.watchList === 'unwatch') {
     options.watchList = false
@@ -267,7 +272,7 @@ var quickEdit = function (options) {
         class: 'watchList',
         id: 'watchList',
         checked: options.watchList && !customizedWatchList,
-        disabled: customizedWatchList
+        disabled: customizedWatchList,
       }),
       $('<span>', { text: _msg('watchThisPage') })
     ),
@@ -287,14 +292,17 @@ var quickEdit = function (options) {
     type: 'text',
     class: 'newSectionTitle',
     id: 'newSectionTitle',
-    placeholder: _msg('editor-new-section')
+    placeholder: _msg('editor-new-section'),
   })
   if (customizedWatchList) {
-    $optionsLabel.find('.watchList').parent().one('click', function() {
-      $(this).removeAttr('title')
-        .children('input').prop('disabled', false)
-      customizedWatchList = false
-    }).attr('title', _msg('unlockWatchList'))
+    $optionsLabel
+      .find('.watchList')
+      .parent()
+      .one('click', function () {
+        $(this).removeAttr('title').children('input').prop('disabled', false)
+        customizedWatchList = false
+      })
+      .attr('title', _msg('unlockWatchList'))
   }
   var $modalContent = $('<div>').append(
     $progress,
@@ -332,7 +340,8 @@ var quickEdit = function (options) {
           function confirm(result) {
             if (result) {
               let summaryVal = $optionsLabel.find('.editSummary').val()
-              const sectiontitle = options.section === 'new' ? $editSection.val() : undefined
+              const sectiontitle =
+                options.section === 'new' ? $editSection.val() : undefined
               if (options.section === 'new') {
                 summaryVal = summaryVal.replace(
                   /\$section/gi,
@@ -406,7 +415,8 @@ var quickEdit = function (options) {
             text: text,
             pst: true,
             section: options.section === 'new' ? 'new' : undefined,
-            sectiontitle: options.section === 'new' ? $editSection.val() : undefined,
+            sectiontitle:
+              options.section === 'new' ? $editSection.val() : undefined,
           })
         },
       },
@@ -580,7 +590,8 @@ var quickEdit = function (options) {
           options.pageId = -1
           $optionsLabel.find('.detailArea').hide()
         } else {
-          options.editText = options.section === 'new' ? '' : data.parse.wikitext['*']
+          options.editText =
+            options.section === 'new' ? '' : data.parse.wikitext['*']
           options.pageId = data.parse.pageid
         }
         // 设定一堆子样式
@@ -697,7 +708,9 @@ var quickEdit = function (options) {
           $modalTitle.find('.editPage').text(options.page)
 
           if (unsetWatchList) {
-            $optionsLabel.find('.watchList').prop('checked', 'watched' in pageData)
+            $optionsLabel
+              .find('.watchList')
+              .prop('checked', 'watched' in pageData)
           }
 
           if (options.revision && options.section !== 'new') {
