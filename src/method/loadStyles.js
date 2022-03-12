@@ -5,7 +5,7 @@ function loadStyles(purge) {
   // 放在越上面优先级越高
   const styleFiles = [
     // Default Skin
-    `${pluginCDN}/skins/ipe-default.css`,
+    `https://cdn.jsdelivr.net/gh/bhsd-harry/Plugins@dev/skins/ipe-default.css`,
     // ssi-modal Style
     `${pluginCDN}/lib/ssi-modal/ssi-modal.css`,
     // FontAwesome
