@@ -77,6 +77,9 @@ var quickEdit = function (options) {
   if (options.section && options.section !== 'new') {
     options.jsonGet.section = options.section
   }
+  if (options.section === 'new') {
+    delete options.revision
+  }
 
   // 模态框内部
   var $modalTitle = $('<span>').append(
@@ -304,6 +307,11 @@ var quickEdit = function (options) {
       })
       .attr('title', _msg('unlockWatchList'))
   }
+  var $newSectionTitleInput = $('<input>', {
+    type: 'text',
+    class: 'newSectionTitleInput',
+    placeholder: _msg('editor-new-section'),
+  })
   var $modalContent = $('<div>').append(
     $progress,
     $('<section>', { class: 'hideBeforeLoaded' }).append(
@@ -314,7 +322,13 @@ var quickEdit = function (options) {
     )
   )
   if (options.section === 'new') {
-    $editArea.before($editSection)
+    $modalContent.prepend(
+      $('<label>', { class: 'newSectionTitleArea' }).append(
+        _msg('editor-new-section'),
+        '<br>',
+        $newSectionTitleInput
+      )
+    )
   }
 
   // Debug
@@ -337,11 +351,32 @@ var quickEdit = function (options) {
         className: 'btn btn-primary leftBtn hideBeforeLoaded save-btn',
         keyPress: 'ctrl-s',
         method(e, modal) {
+          console.log({
+            title: $newSectionTitleInput.val(),
+            content: $editArea.val(),
+          })
+          if (
+            options.section === 'new' &&
+            (!$newSectionTitleInput.val().trim() || !$editArea.val().trim())
+          ) {
+            ssi_modal.notify('error', {
+              className: 'in-page-edit',
+              position: 'right top',
+              closeAfter: {
+                time: 15,
+              },
+              title: _msg('notify-error'),
+              content: _msg('editor-new-section-missing-content'),
+            })
+            return
+          }
           function confirm(result) {
             if (result) {
               let summaryVal = $optionsLabel.find('.editSummary').val()
               const sectiontitle =
-                options.section === 'new' ? $editSection.val() : undefined
+                options.section === 'new'
+                  ? $newSectionTitleInput.val()
+                  : undefined
               if (options.section === 'new') {
                 summaryVal = summaryVal.replace(
                   /\$section/gi,
@@ -416,7 +451,9 @@ var quickEdit = function (options) {
             pst: true,
             section: options.section === 'new' ? 'new' : undefined,
             sectiontitle:
-              options.section === 'new' ? $editSection.val() : undefined,
+              options.section === 'new'
+                ? $newSectionTitleInput.val()
+                : undefined,
           })
         },
       },
