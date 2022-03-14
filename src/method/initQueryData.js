@@ -1,10 +1,3 @@
-const mwApi = new mw.Api({
-  parameters: {
-    format: 'json',
-    formatversion: 2,
-  },
-})
-
 async function initQueryData() {
   // Init
   mw.config.set('wgUserRights', [])
@@ -12,18 +5,15 @@ async function initQueryData() {
   mw.config.set('wgSpecialPageAliases', [])
 
   const {
-    query: { users, userinfo, specialpagealiases },
-  } = await mwApi.get({
-    action: 'query',
-    ususers: mw.config.get('wgUserName'),
+    query: { userinfo, specialpagealiases },
+  } = await new mw.Api().get({
     meta: ['userinfo', 'siteinfo'],
-    list: ['users'],
-    uiprop: ['rights'],
-    siprop: ['specialpagealiases'],
-    usprop: ['blockinfo'],
+    uiprop: ['blockinfo', 'rights'],
+    siprop: 'specialpagealiases',
+    formatversion: 2,
   })
   // Blockinfo
-  if (users?.[0].blockid) {
+  if (userinfo.blockid) {
     mw.config.set('wgUserIsBlocked', true)
   }
   // Rights
@@ -31,7 +21,7 @@ async function initQueryData() {
   // Special page aliases
   mw.config.set('wgSpecialPageAliases', specialpagealiases)
 
-  return { users, userinfo, specialpagealiases }
+  return
 }
 
 module.exports = {

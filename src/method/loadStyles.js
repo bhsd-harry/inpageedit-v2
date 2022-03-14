@@ -11,11 +11,11 @@ function loadStyles(purge) {
   ]
 
   styleFiles.forEach((link) => {
-    if (/^https?:\/\//.test(link) !== true) {
+    if (!/^https?:\/\//.test(link)) {
       link = _dir + link
     }
     if (purge) {
-      link += '?timestamp' + new Date().getTime()
+      link += '?timestamp' + Date.now()
     }
     $('head').prepend(
       $('<link>', { href: link, rel: 'stylesheet', 'data-ipe': 'style' })

@@ -12,7 +12,7 @@ const version = require('../module/version')
  */
 module.exports = async function init() {
   mw.hook('InPageEdit.init.before').fire()
-  await $.ready
+  await mw.loader.using('mediawiki.user')
   // 是否需要刷新缓存
   const noCache = !!(
     mw.util.getParamValue('dev') ||
@@ -22,9 +22,8 @@ module.exports = async function init() {
   loadStyles(noCache)
   // 等待前置项目
   require('../ssi_modal/ssi-modal.js')
-  window.ssi_modal = ssi_modal
   await Promise.all([
-    mw.loader.using(['mediawiki.api', 'mediawiki.util', 'mediawiki.user']),
+    $.ready,
     initQueryData(),
   ])
 
