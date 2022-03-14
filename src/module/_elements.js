@@ -6,10 +6,10 @@ var { getUrl } = mw.util
 
 var $br = '<br>'
 var $button = ({ type, text, html, href, link }) => {
-  html = html || text
+  html = html || mw.html.escape(text || '')
   href = href || link
   var $btn = $('<button>', { class: type ? 'btn btn-' + type : 'btn', html })
-  if (href || link) {
+  if (href) {
     var target = ''
     if (/^https?:\/\//.test(href)) target = '_blank'
     var $a = $('<a>', { target, href })
@@ -19,13 +19,16 @@ var $button = ({ type, text, html, href, link }) => {
 }
 var $hr = '<hr>'
 var $link = ({ page, link, href, text, html }) => {
-  href = href || link || 'javascript:void(0);'
-  if (page) href = getUrl(page)
-  html = html || text
-  if (page && !html) html = page
-  if (!html) html = href
+  if (page) {
+    href = getUrl(page)
+  } else {
+    href = href || link || 'javascript:void(0);'
+  }
+  html = html || mw.html.escape(text || '') || page || href
   var target = ''
-  if (/^https?:\/\//.test(href)) target = '_blank'
+  if (/^https?:\/\//.test(href)) {
+    target = '_blank'
+  }
   return $('<a>', { href, target, html })
 }
 var $progress =
@@ -37,9 +40,7 @@ var $checkbox = ({ label, checked, id, className }) => {
       $('<span>', { class: 'ipe-checkbox-box' }),
       $('<span>', { html: label })
     )
-    .css({
-      display: 'block',
-    })
+    .css('display', 'block')
 }
 
 module.exports = {
