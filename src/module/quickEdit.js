@@ -297,12 +297,6 @@ var quickEdit = function (options) {
       $('<span>', { text: _msg('editor-reload-page') })
     )
   )
-  var $editSection = $('<input>', {
-    type: 'text',
-    class: 'newSectionTitle',
-    id: 'newSectionTitle',
-    placeholder: _msg('editor-new-section'),
-  })
   if (['nochange', 'preferences'].includes(options.watchList)) {
     $optionsLabel
       .find('.watchList')
@@ -412,19 +406,6 @@ var quickEdit = function (options) {
                 modal
               )
             }
-          }
-
-          if (options.section === 'new' && !$editSection.val()) {
-            ssi_modal.notify('error', {
-              className: 'in-page-edit',
-              position: 'right top',
-              closeAfter: {
-                time: 15,
-              },
-              title: _msg('notify-error'),
-              content: _msg('editor-save-new-section'),
-            })
-            return
           }
 
           if (options.noConfirmEdit) {
