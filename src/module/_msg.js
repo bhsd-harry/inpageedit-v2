@@ -271,17 +271,17 @@ function sanitiseHtml(html) {
       array,
       style
 
-    if (whitelistTags.indexOf(tagname) === -1) {
+    if (!whitelistTags.includes(tagname)) {
       mw.log('[I18n-js] Disallowed tag in message: ' + tagname)
       $this.remove()
       return
     }
 
     attrs = $this.prop('attributes')
-    array = Array.prototype.slice.call(attrs)
+    array = [...attrs]
 
     array.forEach(function (attr) {
-      if (whitelistAttrs.indexOf(attr.name) === -1) {
+      if (!whitelistAttrs.includes(attr.name)) {
         mw.log(
           '[I18n-js] Disallowed attribute in message: ' +
             attr.name +
@@ -296,12 +296,12 @@ function sanitiseHtml(html) {
       if (attr.name === 'style') {
         style = $this.attr('style')
 
-        if (style.indexOf('url(') > -1) {
+        if (style.includes('url(')) {
           mw.log('[I18n-js] Disallowed url() in style attribute')
           $this.removeAttr('style')
 
           // https://phabricator.wikimedia.org/T208881
-        } else if (style.indexOf('var(') > -1) {
+        } else if (style.includes('var(')) {
           mw.log('[I18n-js] Disallowed var() in style attribute')
           $this.removeAttr('style')
         }
@@ -339,7 +339,7 @@ function parseWikitext(message) {
     // {{GENDER:gender|masculine|feminine|neutral}} -> {{GENDER:$1|$2}}
     genderRgx = /\{\{GENDER:([^|]+)\|(.+?)\}\}/gi
 
-  if (message.indexOf('<') > -1) {
+  if (message.includs('<')) {
     message = sanitiseHtml(message)
   }
 
