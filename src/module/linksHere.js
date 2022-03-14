@@ -24,10 +24,9 @@ const isFile = (title) => {
  */
 const getList = (title) => {
   var opt = {
-    format: 'json',
-    action: 'query',
     prop: isFile(title) ? 'fileusage' : 'linkshere',
     titles: title,
+    formatversion: 2,
   }
   if (isFile(title)) {
     opt.fulimit = 'max'
@@ -51,11 +50,11 @@ const makeList = (list) => {
           ? ' (<i>' + _msg('links-here-isRedirect') + '</i>)'
           : '',
         ' (',
-        $link({ text: '← ' + _msg('links-here') }).on('click', function () {
+        $link({ text: '← ' + _msg('links-here') }).click(function () {
           linksHere(title)
         }),
         ' | ',
-        $link({ text: _msg('quick-edit') }).on('click', function () {
+        $link({ text: _msg('quick-edit') }).click(function () {
           require('./quickEdit').quickEdit({
             page: title,
             reload: false,
@@ -75,7 +74,9 @@ const makeList = (list) => {
 async function linksHere(title = config.wgPageName) {
   _analytics('linkshere')
 
-  if (!title || typeof title !== 'string') title = config.wgPageName
+  if (!title || typeof title !== 'string') {
+    title = config.wgPageName
+  }
 
   // 构建内容
   var $progressBar = $($progress)
@@ -90,7 +91,7 @@ async function linksHere(title = config.wgPageName) {
       onShow(modal) {
         mw.hook('InPageEdit.linksHere').fire({
           modal,
-          $modal: $('#' + modal.modalId),
+          $modal: $(document.getElementById(modal.modalId)),
         })
       },
     })
@@ -106,16 +107,14 @@ async function linksHere(title = config.wgPageName) {
   // 异步操作
   try {
     console.info('[InPageEdit] linksHere', '开始获取页面信息')
-    const data = await getList(title)
-    const { pages } = data.query
+    const { query: { pages: [page] } } = await getList(title)
     console.info('[InPageEdit] linksHere', '成功获取页面信息')
-    var pageId = Object.keys(pages)[0]
     var pageList = []
     // 判定为文件还是一般页面
     if (isFile(title)) {
-      pageList = pages[pageId].fileusage || []
+      pageList = page.fileusage || []
     } else {
-      pageList = pages[pageId].linkshere || []
+      pageList = page.linkshere || []
     }
     $progressBar.hide()
     // 如果存在页面，则插入列表，否则显示提示
@@ -134,10 +133,7 @@ async function linksHere(title = config.wgPageName) {
     if (pageList.length < 2) {
       modal.setTitle(_msg('links-here-title', title, 1))
     }
-    // pageId 是一个字符串，MediaWiki NM$L
-    // pageId 为 "-1" 则意味着请求的页面似乎不存在
-    // 但这不意味着不会有链入页面
-    if (pageId === '-1') {
+    if (page.missing) {
       $content.append(
         $('<div>', {
           html: _msg('links-here-not-exist', title),
