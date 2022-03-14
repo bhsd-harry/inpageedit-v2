@@ -20,8 +20,8 @@ function articleLink(el) {
   }
   /** @type {JQuery<HTMLAnchorElement>} */
   const $el = $(el)
-  $el.each(function (_, item) {
-    const $this = $(item)
+  $el.each(function () {
+    const $this = $(this)
     if (
       $this.attr('href') === undefined ||
       $this.attr('href').startsWith('#')
@@ -36,7 +36,7 @@ function articleLink(el) {
         ? getParamValue('section', url).replace(/T-/, '')
         : null,
       revision = getParamValue('oldid', url),
-      wikiUrl = `${location.protocol}//${config.wgServer.split('//').pop()}`
+      wikiUrl = `${location.protocol}//${config.wgServerName}`
 
     // 不是本地编辑链接
     if (!url.startsWith(wikiUrl)) {
@@ -52,9 +52,7 @@ function articleLink(el) {
     if (title === null && ['edit', 'editsource'].includes(action)) {
       let articlePath = config.wgArticlePath.replace('$1', '')
       // 掐头去尾，获取包含文章路径的字符串
-      title = url.slice(wikiUrl.length).split('?')[0]
-      // 去除文章路径，之所以这么处理是因为文章路径有可能是 /
-      title = title.split(articlePath).slice(1).join(articlePath)
+      title = url.slice(wikiUrl.length + articlePath.length).split('?')[0]
     }
 
     // 解码 URL
@@ -66,12 +64,12 @@ function articleLink(el) {
           class: 'in-page-edit-article-link-group',
         }).append(
           $('<a>', {
-            href: 'javascript:void(0)',
+            href: '#',
             class: 'in-page-edit-article-link',
             text: _msg('quick-edit'),
-          }).on('click', function () {
-            var options = {}
-            options.page = title
+          }).click(function (e) {
+            e.preventDefault()
+            var options = { page: title }
             if (revision !== null) {
               options.revision = revision
             } else if (section !== null) {
