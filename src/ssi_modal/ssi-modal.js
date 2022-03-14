@@ -37,18 +37,10 @@
      * @property {boolean}  defaults.onClickClose  - Enables/Disables the ability to close the modal when you click in the main window.
      * @property {string}  defaults.className      - Defines a class to the modal outer element.
      * @property {string}  defaults.backdropClassName      - Defines a class to the backdrop element.
-     * @property {object}  defaults.preview      - Set the options and the state of a modal according to the preview
-     * @property {boolean} defaults.preview.icon - Generate an icon that allows the user to change display state
-     * @property {boolean} defaults.preview.hideIcons - Enables/disables the ability to hide the modal after a certain time when the modal is in fullScreen state.
-     * @property {'fullScreen' | 'normal'}  defaults.preview.state - The state tha the modal will have when opens.
      * @property {object | 'false'}  defaults.closeAfter
      * @property {number}  defaults.closeAfter.time      - After the defined time the modal will close.
      * @property {boolean}  defaults.closeAfter.displayTime      - Display the in a span with class="ssi-displayTime" that you must set. In example <span class="ssi-displayTime"></span> .
      * @property {boolean}  defaults.closeAfter.resetOnHover      -Reset the time that modal will close.
-
-     * @property {object}   defaults.iframe      - Options for iframe.
-     * @property {boolean}  defaults.iframe.allowFullScreen      - The default treasure.
-     * @property {string}   defaults.iframe.className      - Set a
      * @property {boolean}  defaults.center      - Element centering.Not associated with positioned modals
      * @property {boolean || string}  defaults.animation      - Enables/disables animations if you set a string all animation type will be set to that sting.
      * @property {object || string || boolean}  defaults.modalAnimation      - Set the animations for the modal window.
@@ -59,7 +51,7 @@
      * @property {string || 'boolean}  defaults.backdropAnimation.hide      - The animation tha start when the modal closes.
      * @property {Object[]}  defaults.buttons      - The buttons of modal.
      * @property {'button' || 'link'}  defaults.buttons.type      - The type of button.
-     * @property {keycode}  defaults.buttons.keyPres      - Registers a keypress event  that will trigger the button's click method.
+     * @property {keycode}  defaults.buttons.keyPress      - Registers a keypress event  that will trigger the button's click method.
      * @property {boolean}  defaults.buttons.className    - Defines a class to the button element.
      * @property {number||false}  defaults.buttons.enableAfter      - Disables the button.if set a number the button will be enable after that time in seconds.
      * @property {string}  defaults.buttons.id      - Defines an id to the button element.
@@ -77,20 +69,15 @@
      * @property {string}  defaults.sizeClass      - Defines the size of the modal.
      * @property {boolean}  defaults.fixedHeight      - If modal height is bigger than the screen the height of modal will be fixed and will fit the screen also the content will be scrollable.
      * @property {boolean}  defaults.fitScreen      - The modal min-height will be the height of screen.
-     * @property {boolean}  defaults.navigation      - Enables/disables the navigation of imgBox.
      */
 
     /**
      * The unique id number of modal.
      * @type {number}
      */
-
     this.numberId = uniqueId
-    if (options.stack) {
-      this.pluginName = 'stackModal'
-    } else {
-      this.pluginName = 'normalModal'
-    }
+    this.pluginName = options.stack ? 'stackModal' : 'normalModal'
+
     /**
      * The id of the backdrop.
      * @type {string}
@@ -112,25 +99,14 @@
         bodyElement: false,
         className: '',
         backdropClassName: '',
-        preview: {
-          icon: false,
-          hideIcons: false,
-          state: 'normal', //full
-        },
         closeAfter: false, // time: 4, displayTime:false, resetOnHover:true }
         outSideClose: true,
         onClose: '',
         onShow: '',
         beforeClose: '',
         beforeShow: '',
-        iframe: {
-          //{className,allowfullscreen}
-          allowFullScreen: true,
-          className: '',
-        },
         center: false,
         closeIcon: true,
-        navigation: false,
         sizeClass: 'medium',
         animation: false,
         modalAnimation: undefined, //{show:'',hide:''}
@@ -145,14 +121,6 @@
       var modalObj = this
       this.options = $.extend(true, defaults, options)
       this.options.iconButtons = toArray(this.options.iconButtons)
-      if (this.options.preview.icon) {
-        this.options.iconButtons.push({
-          className: 'ssi-displayIcon',
-          method: function () {
-            modalObj.changePreviewState()
-          },
-        })
-      }
       if (this.options.closeIcon) {
         this.options.iconButtons.push({
           className: 'ssi-closeIcon',
@@ -279,47 +247,6 @@
   }
 
   var time = null
-
-  //get/exit full screen state
-  /**
-   * Changes the previe state of the modal
-   * @returns {Ssi_modal}
-   */
-  Ssi_modal.prototype.changePreviewState = function () {
-    var $modalOuter = this.get$modal()
-    if (this.options.preview.state === 'fullScreen') {
-      //if the current state is full
-      $modalOuter.removeClass('ssi-fullScreen') //remove class
-      this.options.preview.state = 'normal' //set state to normal
-      $modalOuter.find('#ssi-modalContent').css('height', '')
-      if (this.options.fixedHeight || this.options.fitScreen)
-        this.setModalHeight() //set height again
-      clearTimeout(time)
-      $modalOuter.off('mousemove.ssi-modal')
-    } else {
-      //if current state is normal
-      if (this.options.preview.hideIcons) {
-        var $icons = $modalOuter.find('.ssi-topIcons')
-        if (this.options.buttons)
-          var $buttons = $modalOuter.find('#ssi-buttons') //find the buttons area
-        $modalOuter.on('mousemove.ssi-modal', function () {
-          //register mousemove event
-          clearTimeout(time)
-          $icons.fadeIn() //show the icons
-          $buttons.slideDown() //and buttons
-          time = setTimeout(function () {
-            //after 2 seconds
-            $buttons.slideUp() //hide them
-            $icons.fadeOut()
-          }, 2000)
-        })
-      }
-      this.setModalHeight(40, 'height') //set the height
-      $modalOuter.addClass('ssi-fullScreen')
-      this.options.preview.state = 'fullScreen' //change state to full
-    }
-    return this
-  }
 
   Ssi_modal.prototype.setPluginName = function (name) {
     this.pluginName = name
@@ -994,11 +921,6 @@
     if (this.options.center) {
       $modal.css('display', '')
     }
-    if (modalObj.options.preview.state === 'fullScreen') {
-      //if the default state is fullscreen
-      modalObj.options.preview.state = 'normal'
-      modalObj.changePreviewState()
-    }
 
     this.setModalHeight()
 
@@ -1389,7 +1311,7 @@
     },
   }
 
-  //-----------------------------Start of confirm plugin------------------------------------------------------------------
+  //-----------------------------Start of dialog plugin------------------------------------------------------------------
 
   ssi_modal.dialog = function (options, method) {
     var defaults = {
