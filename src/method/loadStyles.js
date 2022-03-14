@@ -4,8 +4,6 @@ const _dir = require('./_dir')
 function loadStyles(purge) {
   // 放在越上面优先级越高
   const styleFiles = [
-    // Default Skin
-    `https://cdn.jsdelivr.net/gh/bhsd-harry/Plugins@dev/skins/ipe-default.css`,
     // ssi-modal Style
     `${pluginCDN}/lib/ssi-modal/ssi-modal.css`,
     // FontAwesome
@@ -23,6 +21,7 @@ function loadStyles(purge) {
       $('<link>', { href: link, rel: 'stylesheet', 'data-ipe': 'style' })
     )
   })
+  require('../skin/ipe-default.js')
 }
 
 module.exports = {
