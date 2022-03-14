@@ -339,7 +339,7 @@ function parseWikitext(message) {
     // {{GENDER:gender|masculine|feminine|neutral}} -> {{GENDER:$1|$2}}
     genderRgx = /\{\{GENDER:([^|]+)\|(.+?)\}\}/gi
 
-  if (message.includs('<')) {
+  if (message.includes('<')) {
     message = sanitiseHtml(message)
   }
 

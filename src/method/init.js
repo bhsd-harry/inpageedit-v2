@@ -3,6 +3,7 @@ const _dir = require('./_dir')
 const { initQueryData } = require('./initQueryData')
 const { loadStyles } = require('./loadStyles')
 const { updateNotice } = require('./updateNotice')
+const { syncI18nData } = require('./syncI18nData')
 
 const version = require('../module/version')
 
@@ -22,6 +23,7 @@ module.exports = async function init() {
   loadStyles(noCache)
   // 等待前置项目
   require('../ssi_modal/ssi-modal.js')
+  syncI18nData(noCache)
   await Promise.all([
     $.ready,
     initQueryData(),

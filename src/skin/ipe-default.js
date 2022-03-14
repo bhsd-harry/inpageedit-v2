@@ -604,7 +604,7 @@ mw.loader.addStyleTag(`
 .in-page-edit label input[type='radio'] + span::before {
   border-radius: 50%;
   box-sizing: border-box;
-  vertical-align: middle;
+  vertical-align: text-bottom;
 }
 
 .in-page-edit label input[type='checkbox']:checked + span::before {

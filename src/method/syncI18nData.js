@@ -1,10 +1,7 @@
 var config = mw.config.get()
 
-const _dir = require('./_dir')
-
 // 设置
 const cacheTime = 2 * 60 * 60 * 1000
-const cacheUrl = _dir + '/i18n/languages.json'
 const funcName = 'InPageEdit'
 const localCacheName = 'i18n-cache-' + funcName + '-content'
 const localCacheTime = 'i18n-cache-' + funcName + '-timestamp'
@@ -13,8 +10,8 @@ const localCacheTime = 'i18n-cache-' + funcName + '-timestamp'
  * @method i18n Get i18n data
  * @param {Boolean} noCache true - forced no cache
  */
-async function syncI18nData(noCache) {
-  const now = new Date().getTime()
+function syncI18nData(noCache) {
+  const now = Date.now()
   // 如果语言为 qqx，不返回任何东西
   if (config.wgUserLanguage === 'qqx') {
     console.warn('[InPageEdit] User language is qqx')
@@ -31,18 +28,18 @@ async function syncI18nData(noCache) {
       json = JSON.parse(localStorage.getItem(localCacheName))
     } catch (e) {
       console.warn('[InPageEdit] i18n 数据不合法')
-      await getOriginalData()
+      getOriginalData()
       return true
     }
     if (json.en) {
       return true
     } else {
       console.warn('[InPageEdit] i18n 数据可能已损坏')
-      await getOriginalData()
+      getOriginalData()
       return true
     }
   } else {
-    await getOriginalData()
+    getOriginalData()
     return true
   }
 }
@@ -51,7 +48,7 @@ async function syncI18nData(noCache) {
  * @function saveToCache
  */
 function saveToCache(data) {
-  const now = new Date().getTime()
+  const now = Date.now()
   data = JSON.stringify(data)
   localStorage.setItem(localCacheName, data)
   localStorage.setItem(localCacheTime, now)
@@ -60,15 +57,12 @@ function saveToCache(data) {
 /**
  * @function getOriginalData
  */
-async function getOriginalData() {
-  console.time('[InPageEdit] 从远程获取 i18n 数据')
-  var data = await $.getJSON(cacheUrl, {
-    cache: false,
-    timestamp: new Date().getTime(),
-  })
+function getOriginalData() {
+  console.time('[InPageEdit] 从本地获取 i18n 数据')
+  var data = require('../../i18n/languages.json')
   if (typeof data !== 'object') data = {}
   saveToCache(data)
-  console.timeEnd('[InPageEdit] 从远程获取 i18n 数据')
+  console.timeEnd('[InPageEdit] 从本地获取 i18n 数据')
   return data
 }
 
