@@ -15,7 +15,7 @@ module.exports = async function init() {
   await $.ready
   // 是否需要刷新缓存
   const noCache = !!(
-    mw.util.getParamValue('ipedev', location.href) ||
+    mw.util.getParamValue('dev') ||
     version !== localStorage.getItem('InPageEditVersion')
   )
   // 加载样式表

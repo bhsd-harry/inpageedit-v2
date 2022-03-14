@@ -15,6 +15,12 @@
   font-size: 16px;
 }
 
+/* @FIX For WikiEditor dialogs */
+.ssi-backdrop,
+.ssi-modalOuter.in-page-edit {
+  z-index: 800;
+}
+
 .in-page-edit .ssi-modalWindow {
   padding: 0;
   border-radius: 0;
@@ -145,7 +151,7 @@
   color: #222222;
   background-color: #ffffff;
   background-image: linear-gradient(transparent, transparent),
-    url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22%3E%3Cpath d=%22M13.002 6.001l-5 5.001-5-5.001z%22 fill=%22%23797979%22/%3E%3C/svg%3E');
+    url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHBhdGggZD0iTTEzLjAwMiA2LjAwMWwtNSA1LjAwMS01LTUuMDAxeiIgZmlsbD0iIzc5Nzk3OSIvPjwvc3ZnPg==');
   background-repeat: no-repeat;
   background-position: calc(100% - 2px);
   padding: 2px 20px 2px 4px;
@@ -572,12 +578,14 @@
 }
 
 /** 修改checkbox样式 **/
-.in-page-edit label input[type='checkbox'] + span {
+.in-page-edit label input[type='checkbox'] + span,
+.in-page-edit label input[type='radio'] + span {
   user-select: none;
   line-height: 1.2em;
 }
 
-.in-page-edit label input[type='checkbox'] + span::before {
+.in-page-edit label input[type='checkbox'] + span::before,
+.in-page-edit label input[type='radio'] + span::before {
   /* 不换行空格可以保持选择框的高度 */
   content: '\a0';
   display: inline-block;
@@ -592,15 +600,30 @@
   transition: all 0.12s;
 }
 
+.in-page-edit label input[type='radio'] + span::before {
+  border-radius: 50%;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
 .in-page-edit label input[type='checkbox']:checked + span::before {
   content: '\a0';
   background-color: #36c;
-  background-image: url(https://cdn.jsdelivr.net/npm/mediawiki-inpageedit@latest/src/images/Checkmark.svg);
+  background-image: url(data:image/svg+xml;base64,PHN2ZyBzdHlsZT0iZmlsbC1ydWxlOmV2ZW5vZGQ7Y2xpcC1ydWxlOmV2ZW5vZGQ7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kOyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTYgMTYiPjxnIGlkPSJjaGVja21hcmsiPjxwYXRoIGQ9Ik0xMy43NDkyKzMuNDkwOTVMNS44NjMxMisxMS42MzM3TDIuMjUwNzcrNy45NjA4MkwxLjQ4NzYrOC43NTc3OEw1Ljg2MzEyKzEzLjE5M0wxNC41MTI0KzQuMjg3OUwxMy43NDkyKzMuNDkwOTVaIiBvcGFjaXR5PSIxIiBmaWxsPSIjZmZmZmZmIi8+PC9nPjwvc3ZnPg==);
   background-repeat: no-repeat;
 }
 
-.in-page-edit label input[type='checkbox']:checked + span:hover:before {
+.in-page-edit label input[type='radio']:checked + span::before {
+  border-color: #36c;
+  border-width: 6px;
+}
+
+.in-page-edit label input[type='checkbox']:checked + span:hover::before {
   background-color: #447ff5;
+}
+
+.in-page-edit label input[type='radio']:checked + span:hover::before {
+  border-color: #447ff5;
 }
 
 .in-page-edit label input[type='checkbox']:active + span::before,
@@ -609,7 +632,8 @@
   border-color: #3366cc;
 }
 
-.in-page-edit label input[type='checkbox'] {
+.in-page-edit label input[type='checkbox'],
+.in-page-edit label input[type='radio'] {
   position: absolute;
   clip: rect(0, 0, 0, 0);
 }
@@ -618,8 +642,17 @@
   border-color: #d6d6d6;
 }
 
+.in-page-edit label input[type='radio']:disabled + span::before {
+  background-color: #c8ccd1;
+  border-color: #c8ccd1;
+}
+
 .in-page-edit label input[type='checkbox']:disabled:checked + span::before {
   background-color: #a0a0a0;
+}
+
+.in-page-edit label input[type='radio']:disabled:checked + span::before {
+  background-color: #fff;
 }
 
 /** 右下角小工具箱 **/
