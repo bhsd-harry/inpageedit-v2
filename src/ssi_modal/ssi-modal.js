@@ -909,7 +909,11 @@
                 }
               })
               .on('click', function (e) {
-                if (outSide && e.which === 1 && !e.target.closest('#ssi-modalWindow')) {
+                if (
+                  outSide &&
+                  e.which === 1 &&
+                  !e.target.closest('#ssi-modalWindow')
+                ) {
                   modalObj.close()
                 } else {
                   outSide = false
