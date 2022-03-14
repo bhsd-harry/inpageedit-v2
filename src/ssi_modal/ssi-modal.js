@@ -35,10 +35,8 @@
      * @property {boolean}  defaults.stack         - Make the modal a part of stack.For example toast/notification messages. Requires position.
      * @property {boolean}  defaults.onClickClose  - Enables/Disables the ability to close the modal when you click in the main window.
      * @property {string}  defaults.className      - Defines a class to the modal outer element.
-     * @property {string}  defaults.backdropClassName      - Defines a class to the backdrop element.
      * @property {object | 'false'}  defaults.closeAfter
      * @property {number}  defaults.closeAfter.time      - After the defined time the modal will close.
-     * @property {boolean}  defaults.closeAfter.displayTime      - Display the in a span with class="ssi-displayTime" that you must set. In example <span class="ssi-displayTime"></span> .
      * @property {boolean}  defaults.closeAfter.resetOnHover      -Reset the time that modal will close.
      * @property {boolean}  defaults.center      - Element centering.Not associated with positioned modals
      * @property {boolean || string}  defaults.animation      - Enables/disables animations if you set a string all animation type will be set to that sting.
@@ -52,15 +50,8 @@
      * @property {'button' || 'link'}  defaults.buttons.type      - The type of button.
      * @property {keycode}  defaults.buttons.keyPress      - Registers a keypress event  that will trigger the button's click method.
      * @property {boolean}  defaults.buttons.className    - Defines a class to the button element.
-     * @property {number||false}  defaults.buttons.enableAfter      - Disables the button.if set a number the button will be enable after that time in seconds.
      * @property {string}  defaults.buttons.id      - Defines an id to the button element.
      * @property {string}  defaults.buttons.label      - The text of the button.
-     * @property {object || string || boolean}  defaults.buttons.modalAnimation      - Changes the animations of the modal.
-     * @property {object}  defaults.buttons.modalAnimation.show      - If you set this the next modal will open with this animation.
-     * @property {object}  defaults.buttons.modalAnimation.hide      - It changes the current modal hide animation.
-     * @property {object || string || boolean}  defaults.buttons.backdropAnimation      - Changes the animations of the backdrop.
-     * @property {object}  defaults.buttons.backdropAnimation.show      - If you set this the next backdrop will open with this animation.
-     * @property {object}  defaults.buttons.backdropAnimation.hide      - It changes the current backdrop hide animation.
      * @property {boolean}  defaults.iconButtons      - Register a new icon in the top of the modal( where the x button is).You can modify it only with css using content and background properties.
      * @property {boolean}  defaults.iconButtons.className      - Defines a class name to the element.
      * @property {boolean}  defaults.iconButtons.method      - The function that will be fired when you press the icons.This function has access to the event object and the modal's object (ie function(event,modal){})
@@ -94,10 +85,8 @@
         backdrop: true,
         stack: false,
         onClickClose: false,
-        bodyElement: false,
         className: '',
-        backdropClassName: '',
-        closeAfter: false, // time: 4, displayTime:false, resetOnHover:true }
+        closeAfter: false, // time: 4, resetOnHover:true }
         outSideClose: true,
         onClose: '',
         onShow: '',
@@ -109,8 +98,7 @@
         animation: false,
         modalAnimation: undefined, //{show:'',hide:''}
         backdropAnimation: undefined, //{show:'',hide:''}
-        animationSpeed: 300,
-        buttons: [], //[{className: 'btn btn-danger', enableAfter:3, id: '', label: 'Open', modalReverseAnimation:true backdropReverseAnimation:true closeAfter:{ clearTimeOut:true, method: function(){ } } ]
+        buttons: [], //[{className: 'btn btn-danger', id: '', label: 'Open', closeAfter:{ clearTimeOut:true, method: function(){ } } ]
         iconButtons: [], //[className:'',method:function(){}]
         title: '',
         fixedHeight: false,
@@ -280,28 +268,6 @@
       $modalContent = this.get$content()
     }
     var theContent = content
-    if (content instanceof $ && this.options.bodyElement === true) {
-      if (this.options.extendOriginalContent === true) {
-        var beforeClose = this.options.beforeClose
-        this.options.beforeClose = function (modal) {
-          var resume
-          if (typeof beforeClose === 'function') resume = beforeClose(modal)
-          if (resume !== false) {
-            content
-              .eq(0)
-              .after(modal.get$content().contents().unwrap().css('display', ''))
-              .remove()
-          } else {
-            return resume
-          }
-        }
-      }
-
-      theContent = content.eq(0).clone()
-      if (!theContent.is(':visible')) {
-        theContent.show()
-      }
-    }
     $modalContent[method](theContent)
 
     return $modalContent
@@ -444,31 +410,14 @@
     modalObj.time = setTimeout(function () {
       modalObj.close()
     }, modalObj.options.closeAfter.time * 1000)
-    if (modalObj.options.closeAfter.displayTime && modalObj.options.title) {
-      var $displayTime = $modal
-        .find('span.ssi-displayTime')
-        .html(modalObj.options.closeAfter.time)
-      updateTime(modalObj, $displayTime, function () {
-        modalObj.$displayTime.remove()
-      })
-    }
     if (modalObj.options.closeAfter.resetOnHover) {
       $modal.on('mouseenter.ssi-modal', function () {
         clearTimeout(modalObj.time)
-        if ($displayTime) {
-          $displayTime.html(modalObj.options.closeAfter.time)
-          clearInterval(modalObj.countDown)
-        }
       })
       $modal.on('mouseleave.ssi-modal', function () {
         modalObj.time = setTimeout(function () {
           modalObj.close()
         }, modalObj.options.closeAfter.time * 1000)
-        if (modalObj.options.closeAfter.displayTime && modalObj.options.title) {
-          updateTime(modalObj, $displayTime, function () {
-            $displayTime.parent().remove()
-          })
-        }
       })
     }
   }
@@ -485,7 +434,7 @@
       this.backdropId = orphanBackdrop //change the id to the same as the new modal
       $backdrop = $orphanBackdrop.attr(
         'class',
-        'ssi-backdrop ' + this.pluginName + ' ' + this.options.backdropClassName
+        'ssi-backdrop ' + this.pluginName
       )
       this.showbd = false
       orphanBackdrop = true
@@ -494,8 +443,6 @@
         '<div id="ssi-backdrop' +
           this.numberId +
           '" class="ssi-backdrop ssi-hidden ' +
-          this.options.backdropClassName +
-          ' ' +
           this.pluginName +
           '"></div>'
       )
@@ -690,14 +637,11 @@
   Ssi_modal.prototype.generateButton = function (buttonOptions, $modalWindow) {
     var defaults = {
       className: '',
-      enableAfter: false,
       method: function () {},
       type: 'button',
       focused: false,
       id: '',
       label: '',
-      modalAnimation: '',
-      backdropAnimation: '',
     }
     buttonOptions = $.extend({}, defaults, buttonOptions)
     var tag = 'button',
@@ -714,7 +658,6 @@
         tag +
         href +
         (buttonOptions.id ? ' id="' + buttonOptions.id + '"' : ' ') +
-        (buttonOptions.enableAfter ? 'disabled ' : '') +
         ' class="ssi-modalBtn ' +
         (buttonOptions.className || '') +
         '">' +
@@ -723,17 +666,6 @@
         tag +
         '>'
     )
-    if (typeof buttonOptions.enableAfter === 'number') {
-      var $count = $(
-        '<span class="ssi-countDown">' + buttonOptions.enableAfter + '</span>'
-      )
-      updateTime(modalObj, $count, function () {
-        $btn.removeClass('disabled')
-        $btn.removeAttr('disabled')
-        $count.remove()
-      })
-      $btn.append($count)
-    }
     //append button to selected object and set click event
     if (buttonOptions.keyPress) {
       if ($modalWindow && !buttonOptions.keyPressBody) {
@@ -1375,7 +1307,6 @@
   ssi_modal.notify = function (type, options, callback) {
     var defaults = {
       closeIcon: false,
-      overrideOther: false,
       sizeClass: 'dialog',
       onClickClose: true,
       bodyScroll: true,
@@ -1487,13 +1418,6 @@
     }
     if (options.backdrop === true) {
       options.backdrop = 'byKndShared'
-    }
-    if (options.overrideOther) {
-      var classes = options.position.split(' ')
-      $('body')
-        .find('div.' + classes[0] + '.' + classes[1])
-        .children()
-        .empty()
     }
 
     return ssi_modal.createObject(options).setPluginName('notify').init().show()
