@@ -27,7 +27,6 @@
      * @property {boolean}  defaults.outSideClose      - Close the modal when you click outside.
      * @property {boolean}  defaults.bodyScroll    - Enables/disables the scroll bar of the document when the modal is opened.
      * @property {boolean}  defaults.closeIcon      - Show/hide the close button
-     * @property {boolean}  defaults.keepContent   - Forces the modal to remove or not the content when it close.It not associated with stack modals
      * @property {function}  defaults.beforeShow      - Callback when the modal opens.
      * @property {function}  defaults.onShow      - Callback when the modal opens.
      * @property {function}  defaults.beforeClose      - Callback when the modal closes.
@@ -91,7 +90,6 @@
       var defaults = {
         content: '',
         bodyScroll: false,
-        keepContent: false,
         position: '',
         backdrop: true,
         stack: false,
@@ -112,7 +110,7 @@
         modalAnimation: undefined, //{show:'',hide:''}
         backdropAnimation: undefined, //{show:'',hide:''}
         animationSpeed: 300,
-        buttons: [], //[{className: 'btn btn-danger', enableAfter:3, id: '', label: 'Open', modalReverseAnimation:true backdropReverseAnimation:true closeAfter:{ clearTimeOut:true, keepContent:true, method: function(){ } } ]
+        buttons: [], //[{className: 'btn btn-danger', enableAfter:3, id: '', label: 'Open', modalReverseAnimation:true backdropReverseAnimation:true closeAfter:{ clearTimeOut:true, method: function(){ } } ]
         iconButtons: [], //[className:'',method:function(){}]
         title: '',
         fixedHeight: false,
@@ -779,12 +777,6 @@
       if (resume === false) {
         return
       }
-      if (
-        typeof buttonOptions.keepContent === 'boolean' &&
-        buttonOptions.keepContent !== modalObj.options.keepContent
-      ) {
-        modalObj.options.keepContent = buttonOptions.keepContent // change keepContent option according to button option
-      }
       if (buttonOptions.closeAfter) {
         modalObj.close()
         //finally close the modal if closeAfter option is true
@@ -974,9 +966,7 @@
   Ssi_modal.prototype.destroyBackdrop = function () {
     var $backdrop = this.get$backdrop(),
       modalObj = this
-    if (this.options.keepContent !== true) {
-      $backdrop.off('click.ssi-modal' + this.numberId)
-    }
+    $backdrop.off('click.ssi-modal' + this.numberId)
     var thisS = this
     var closeBack = function () {
       if (
@@ -997,7 +987,7 @@
           //thisS will execute when the hide animation end
           $backdrop.addClass('ssi-hidden').removeClass('ssi-openedDialog')
           $backdrop.trigger('backdropClose.ssi-modal')
-          if (modalObj.options.keepContent !== true) $backdrop.remove() //remove backdrop if keepContent option is false
+          $backdrop.remove()
         }
         $backdrop.addAnimation(
           thisS.options.backdropAnimation.hide,
@@ -1041,18 +1031,16 @@
         $modal.addClass('ssi-smoothSlide').slideUp('500', function () {
           $modal.removeClass('ssi-smoothSlide')
           $modal.trigger('onClose.ssi-modal') //trigger close event
-          if (modalObj.options.keepContent !== true) $modal.remove() //will remove modal from DOM if keepContent option is false
+          $modal.remove()
         })
       } else {
         $modal.trigger('onClose.ssi-modal') //trigger close event
-        if (modalObj.options.keepContent !== true) $modal.remove() //will remove modal from DOM if keepContent option is false
+        $modal.remove()
       }
       if (typeof modalObj.options.onClose === 'function')
         modalObj.options.onClose(modalObj) //execute onClose callback
 
-      if (modalObj.options.keepContent !== true) {
-        $modal.off('.ssi-modal').find('#ssi-modalWrapper').off('.ssi-modal')
-      }
+      $modal.off('.ssi-modal').find('#ssi-modalWrapper').off('.ssi-modal')
     }
 
     //close the modal window
@@ -1215,8 +1203,6 @@
         //this means that we use jquery method(see line 406)
         $element = $(element)
         data = $element.data('ssi-modal') //then check if object exists in data-ssi-modal
-      } else {
-        options.keepContent = false
       }
       if (data) {
         obj = data
@@ -1297,7 +1283,7 @@
      * @param {function} callback -Just a callback
      */
     removeAll: function () {
-      //close all opened modal no callbacks and no keepContent will execute you can determine one callback
+      //close all opened modal no callbacks will execute you can determine one callback
       $('.ssi-modalOuter').addClass('ssi-hidden').remove()
       $('.ssi-backdrop').addClass('ssi-hidden').remove()
       $('body').removeClass('ssi-modalOpen')
@@ -1398,7 +1384,6 @@
       backdrop: false,
       outSideClose: false,
       position: 'right top',
-      topZIndex: true,
       okBtn: {
         className: '',
         label: 'Ok',
@@ -1503,7 +1488,6 @@
     if (options.backdrop === true) {
       options.backdrop = 'byKndShared'
     }
-    options.keepContent = false
     if (options.overrideOther) {
       var classes = options.position.split(' ')
       $('body')
