@@ -486,33 +486,6 @@
   font-size: 12px;
 }
 
-/* 
-.ipe-preference #analysis-container ul {
-  list-style: none;
-  margin: 0;
-}
-
-.ipe-preference #analysis-container li > div {
-  position: relative;
-  color: #ffffff;
-  text-shadow: 0 0 2px #222;
-  background-color: #c23531;
-  height: 100%;
-}
-
-.ipe-preference #analysis-container li > div > div:first-of-type {
-  padding-left: 2px;
-  font-weight: bold;
-}
-
-.ipe-preference #analysis-container li > div > div:last-of-type {
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding-right: 2px;
-}
- */
-
 .ipe-preference .plugin-footer {
   font-size: 12px;
   font-style: italic;

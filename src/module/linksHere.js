@@ -3,7 +3,6 @@
  */
 
 // const { quickEdit } = require('./quickEdit')
-const { _analytics } = require('./_analytics')
 const { $progress, $link } = require('./_elements')
 const { _msg } = require('./_msg')
 
@@ -71,8 +70,6 @@ const makeList = (list) => {
  * @param {string} title page title
  */
 async function linksHere(title = config.wgPageName) {
-  _analytics('linkshere')
-
   if (!title || typeof title !== 'string') {
     title = config.wgPageName
   }

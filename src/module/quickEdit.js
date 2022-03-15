@@ -1,6 +1,5 @@
 const { mwApi, config } = require('./util')
 
-const { _analytics: _analysis } = require('./_analytics')
 const { _msg } = require('./_msg')
 const { _hasRight } = require('./_hasRight')
 
@@ -58,8 +57,6 @@ var quickEdit = function (options) {
 
   /** 将选项合并并标准化 **/
   options = $.extend({}, defaultOptions, options, userPreference)
-
-  _analysis('quick_edit')
 
   if (options.revision && options.revision !== config.wgCurRevisionId) {
     ssi_modal.notify('warning', {
@@ -307,7 +304,6 @@ var quickEdit = function (options) {
         label: _msg('editor-button-preview'),
         className: 'btn btn-secondary leftBtn hideBeforeLoaded',
         method() {
-          _analysis('preview_edit')
           var text = $editArea.val()
           quickPreview({
             title: options.page,
@@ -496,7 +492,6 @@ var quickEdit = function (options) {
                 ')</span>'
             )
           $modalWindow.find('.diff-btn').on('click', function () {
-            _analysis('quick_diff_edit')
             var text = $editArea.val()
             var diffJson = {
               fromrev: options.revision,
@@ -580,7 +575,6 @@ var quickEdit = function (options) {
               .find('.diff-btn')
               .removeAttr('disabled')
               .on('click', function () {
-                _analysis('quick_diff_edit')
                 var text = $editArea.val()
                 var diffJson = {
                   fromrev: options.revision,
@@ -722,7 +716,6 @@ var quickEdit = function (options) {
 
   // 页面详情模块
   $optionsLabel.find('.detailBtnGroup .detailBtn').on('click', function () {
-    _analysis('quick_edit_pagedetail')
     var $this = $(this),
       id = $this.attr('id'),
       content = $('<ul>')
@@ -817,7 +810,6 @@ var quickEdit = function (options) {
     $('.in-page-edit.quick-edit-detail .quickEditTemplate').on(
       'click',
       function () {
-        _analysis('quick_edit_pagedetail_edit_template')
         var $this = $(this)
         var page = $this.attr('data-template-name')
         quickEdit({
@@ -828,7 +820,6 @@ var quickEdit = function (options) {
     $('.in-page-edit.quick-edit-detail .quickViewImage').on(
       'click',
       function () {
-        _analysis('quick_edit_pagedetail_view_image')
         var $this = $(this)
         var imageName = $this.attr('data-image-name')
         ssi_modal.show({
@@ -890,7 +881,6 @@ var quickEdit = function (options) {
     { text, page, minor, summary, section, sectiontitle, watchlist },
     modal
   ) {
-    _analysis('quick_edit_save')
     progress(_msg('editor-title-saving'))
     options.jsonPost = {
       action: 'edit',

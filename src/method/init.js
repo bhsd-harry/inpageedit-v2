@@ -33,7 +33,6 @@ module.exports = async function init() {
   mw.hook('InPageEdit.init.modal').fire({ ssi_modal: window.ssi_modal })
 
   // 导入全部模块
-  const { _analytics: _analysis } = require('../module/_analytics')
   const { _msg } = require('../module/_msg')
   const { about } = require('../module/about')
   const api = require('../module/api')
@@ -101,7 +100,6 @@ module.exports = async function init() {
 
   // 触发钩子，传入上下文
   mw.hook('InPageEdit').fire({
-    _analysis,
     _msg,
     InPageEdit,
   })

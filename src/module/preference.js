@@ -1,15 +1,12 @@
 var InPageEdit = window.InPageEdit || {}
 var config = mw.config.get()
 
-// const { _analytics } = require('./_analytics')
 const { _msg } = require('./_msg')
 const { $br, $hr, $progress, $link } = require('./_elements')
 
 const {
   githubLink,
   pluginGithub,
-  analyticsApi,
-  analyticsDash,
   pluginCDN,
 } = require('./api')
 const version = require('./version')
@@ -102,9 +99,6 @@ const preference = {
     preference.set()
     var local = preference.get()
 
-    // There is an "xxx is undefined" bug, no solution for the time being
-    require('./_analytics')._analytics('plugin_setting') // Keep this line.
-
     /** 定义模态框内部结构 */
     var $tabList = $('<ul>', { class: 'tab-list' }).append(
       $('<li>').append(
@@ -112,9 +106,6 @@ const preference = {
       ),
       $('<li>').append(
         $('<a>', { text: _msg('preference-tab-plugin'), href: '#plugin' })
-      ),
-      $('<li>').append(
-        $('<a>', { text: _msg('preference-tab-analysis'), href: '#analysis' })
       ),
       $('<li>').append(
         $('<a>', { text: _msg('preference-tab-another'), href: '#another' })
@@ -218,18 +209,6 @@ const preference = {
         $('<div>', { class: 'plugin-footer' }).html(
           _msg('preference-plugin-footer', pluginGithub)
         )
-      ),
-      $('<section>', { id: 'analysis' }).append(
-        $('<h3>', { text: _msg('preference-analysis-title') }),
-        $('<div>', {
-          id: 'analysis-container',
-          html: $($progress).css({
-            width: '96%',
-            position: 'absolute',
-            top: '50%',
-            transform: 'translateY(-50%)',
-          }),
-        })
       ),
       $('<section>', { id: 'another' }).append(
         $('<h3>', { text: _msg('preference-another-title') }),
@@ -517,67 +496,6 @@ const preference = {
             )
           })
         }
-
-        // 获取Analysis数据
-        const userName = config.wgUserName
-        $.get(`${analyticsApi}/query/user`, {
-          userName,
-          siteUrl: require('./_analytics').getSiteID(),
-          prop: '*',
-        }).then((ret) => {
-          $tabContent.find('#analysis-container').html('')
-          /** @type {{ userName: string; siteUrl: string; siteName: string; _total: number; features: { featureID: string; count: number }[] }} */
-          const data = ret.body.query[0]
-          if (data === undefined) {
-            $tabContent
-              .prev('.tab-list')
-              .find('a[href="#analysis"]')
-              .parent()
-              .remove()
-            $tabContent.children('#analysis').remove()
-            return
-          }
-          const total = data._total
-          const dashUrl = `${analyticsDash}/user?${$.param({
-            userName,
-            siteUrl: data.siteUrl,
-          })}`
-          let featData = data.features
-          featData = featData.sort((a, b) => b.count - a.count)
-
-          const featTable = $('<table>', {
-            class: 'wikitable',
-            style: 'width: 96%',
-          }).append(
-            $('<tr>').append(
-              $('<th>', { text: 'ID' }),
-              $('<th>', { text: 'Count' }),
-              $('<th>', { text: '%' })
-            )
-          )
-          featData.forEach(({ count, featureID }) => {
-            featTable.append(
-              $('<tr>').append(
-                $('<th>', { text: featureID }),
-                $('<td>', { text: count }),
-                $('<td>', { text: ((count / total) * 100).toFixed(2) + '%' })
-              )
-            )
-          })
-          $tabContent.find('#analysis-container').append(
-            $('<h4>', {
-              text: `${data.userName}@${data.siteName}`,
-            }),
-            $('<p>').append(
-              $link({
-                href: dashUrl,
-                text: 'Analytics Dashboard →',
-              })
-            ),
-            $('<p>').append(_msg('preference-analysis-totaluse', total)),
-            featTable
-          )
-        })
       },
     })
   },

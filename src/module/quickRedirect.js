@@ -1,7 +1,6 @@
 var mwApi = new mw.Api()
 var config = mw.config.get()
 
-const { _analytics: _analysis } = require('./_analytics')
 const { _msg } = require('./_msg')
 const { $br, $progress } = require('./_elements')
 
@@ -91,8 +90,6 @@ var quickRedirect = function (type = 'to') {
             )
             return
           }
-
-          _analysis('quick_redirect')
 
           if (type === 'to') {
             summary = _msg('redirect-summary') + ' → [[:' + target + ']]'

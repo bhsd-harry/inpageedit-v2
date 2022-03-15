@@ -1,7 +1,6 @@
 var mwApi = new mw.Api()
 var config = mw.config.get()
 
-const { _analytics: _analysis } = require('./_analytics')
 const { _msg } = require('./_msg')
 const { preference } = require('./preference')
 
@@ -13,7 +12,6 @@ const { $br, $progress } = require('./_elements')
  */
 var quickDiff = function (param) {
   mw.hook('InPageEdit.quickDiff').fire()
-  _analysis('quick_diff')
   if ($('[href*="mediawiki.diff.styles"]').length < 1) {
     mw.loader.load(
       `${mw.util.wikiScript('load')}?${new URLSearchParams({
@@ -144,7 +142,7 @@ var quickDiff = function (param) {
                   ') ',
                   $br,
                   $('<a>', {
-                    class: 'prevVersion ipe-analysis-quick_diff_modalclick',
+                    class: 'prevVersion',
                     href: 'javascript:void(0);',
                     text: '←' + _msg('diff-prev'),
                   })
@@ -189,13 +187,12 @@ var quickDiff = function (param) {
                   ') ',
                   $br,
                   $('<a>', {
-                    class: 'nextVersion ipe-analysis-quick_diff_modalclick',
+                    class: 'nextVersion',
                     href: 'javascript:void(0);',
                     text: _msg('diff-nextv') + '→',
                   })
                     .toggle(!!data.compare.next)
                     .on('click', () => {
-                      _analysis('quick_diff_modalclick')
                       quickDiff({
                         fromrev: data.compare.torevid,
                         torev: data.compare.next,

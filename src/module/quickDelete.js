@@ -1,6 +1,5 @@
 var mwApi = new mw.Api()
 var config = mw.config.get()
-const { _analytics: _analysis } = require('./_analytics')
 const { _msg } = require('./_msg')
 const { _hasRight } = require('./_hasRight')
 const { $br } = require('./_elements')
@@ -70,7 +69,6 @@ var quickDelete = function (page, givenReason = '') {
             )
             return
           }
-          _analysis('quick_delete')
 
           ssi_modal.confirm(
             {
