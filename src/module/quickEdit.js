@@ -188,7 +188,10 @@ var quickEdit = function (options) {
   })
   var $modalContent = $('<div>').append(
     $progress,
-    $('<section>', { class: 'hideBeforeLoaded' }).append($editArea)
+    $('<section>', { class: 'hideBeforeLoaded' }).append(
+      // 编辑框
+      $editArea
+    )
   )
   if (options.section === 'new') {
     $modalContent.prepend(
@@ -361,26 +364,6 @@ var quickEdit = function (options) {
           })
         })
       )
-
-      /** Edit-Tool 扩展 **/
-      function insertText(strings, obj) {
-        var textarea = obj || $editArea[0],
-          start = textarea.selectionStart,
-          stop = textarea.selectionEnd,
-          selectedText = textarea.value.slice(start, stop)
-        textarea.value =
-          textarea.value.slice(0, start) +
-          (strings.open || '') +
-          (selectedText || strings.middle || '') +
-          (strings.close || '') +
-          textarea.value.slice(stop)
-        var selectStart = start + (strings.open.length || 0)
-        textarea.setSelectionRange(
-          selectStart,
-          selectStart + (selectedText.length || strings.middle.length || 0)
-        )
-        textarea.focus()
-      }
     },
     /**
      * @event onShow

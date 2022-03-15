@@ -168,8 +168,12 @@ const preference = {
           $('<span>', { text: _msg('preference-watchList-nochange') })
         ),
         $('<label>').append(
-          $('<input>', { type: 'radio', name: 'watchList', value: 'preferences' }),
-          $('<span>', { text: _msg('preference-watchList-preferences') })
+          $('<input>', {
+            type: 'radio',
+            name: 'watchList',
+            value: 'preferences',
+          }),
+          $('<span>', { html: _msg('preference-watchList-preferences') })
         ),
         $('<label>').append(
           $('<input>', { type: 'radio', name: 'watchList', value: 'unwatch' }),

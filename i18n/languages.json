@@ -166,7 +166,7 @@
         "preference-editHobits-label": "Edit hobits",
         "preference-watchList-label": "Watchlist preference",
         "preference-watchList-nochange": "Do not change my watchlist when editing",
-        "preference-watchList-preferences": "Conform to Special:Preferences",
+        "preference-watchList-preferences": "Conform to [[Special:Preferences]]",
         "preference-watchList-unwatch": "Remove edited pages from my watchlist",
         "preference-watchList-watch": "Add edited pages to my watchlist",
         "preference-redLinkQuickEdit": "Add quick edit buttons after red links",
@@ -1228,11 +1228,12 @@
         "preference-analysis-title": "数据分析",
         "preference-another-title": "其他设定",
         "preference-editHobits-label": "编辑习惯",
-        "preference-watchList-label": "设置",
+        "preference-watchList-label": "监视设置",
         "preference-watchList-nochange": "不改变监视状态",
-        "preference-watchList-preferences": "使用 特殊:参数设置 中的值",
+        "preference-watchList-preferences": "使用[[Special:Preferences]]中的值",
         "preference-watchList-unwatch": "移除监视",
         "preference-watchList-watch": "总是监视",
+        "preference-watchList": "预设进行监视",
         "preference-redLinkQuickEdit": "在红链后添加快速编辑按钮",
         "preference-plugin-footer": "你可以在这里选用官方插件，欢迎前往[$1 InPageEdit-Plugins]贡献你的代码！一些插件需要重新加载页面才能生效。",
         "preference-analysis-totaluse": "<strong>使用总次数</strong>：$1 次",
@@ -1241,7 +1242,8 @@
         "links-here-title": "链接至“<u>$1</u>”的页面",
         "links-here-isRedirect": "重定向页面",
         "links-here-no-page": "没有页面链接到“<strong>$1</strong>” QAQ",
-        "links-here-not-exist": "注意：页面“<strong>$1</strong>”似乎不存在"
+        "links-here-not-exist": "注意：页面“<strong>$1</strong>”似乎不存在",
+        "preference-noConfirmEdit": "提交编辑前无需再次点击确认"
     },
     "zh-hant": {
         "quick-edit": "快速編輯",
@@ -1343,6 +1345,7 @@
         "preview-placeholder": "正在載入預覽……",
         "preview-title": "預覽",
         "preview-error": "載入預覽時出現錯誤。",
-        "quick-diff": "快速差異"
+        "quick-diff": "快速差異",
+        "preference-noConfirmEdit": "變更儲存前無需再次確認"
     }
 }

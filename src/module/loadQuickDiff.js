@@ -23,12 +23,12 @@ function injectLinks(container) {
 
       // 形如 Special:Diff/[oldid]/[diff]
       const title = mw.Title.newFromText(uri.title || '')
-      if (diff === undefined && title?.getNamespaceId() === -1) {
+      if (diff === undefined && title.getNamespaceId() === -1) {
         const specialDiffName = (
           mw.config
             .get('wgSpecialPageAliases', [])
             .find(({ realname }) => realname === 'Diff')
-            ?.aliases || ['Diff']
+            .aliases || ['Diff']
         ).join('|')
         const specialDiffReg = new RegExp(
           `^(?:${specialDiffName})/(\\d+|${RELATIVE_TYPES.join(
@@ -37,11 +37,11 @@ function injectLinks(container) {
           'i'
         )
         const specialDiffMatch = title.getMainText().match(specialDiffReg)
-        if (specialDiffMatch) {
-          // 可能出现 [[Special:Diff/123]]，这种情况应该当做与前一版本比较
-          diff = specialDiffMatch[2] || specialDiffMatch[1]
-          oldid = !specialDiffMatch[2] ? 'prev' : specialDiffMatch[1]
-        }
+      }
+      if (specialDiffMatch) {
+        // 可能出现 [[Special:Diff/123]]，这种情况应该当做与前一版本比较
+        diff = specialDiffMatch[2] || specialDiffMatch[1]
+        oldid = !specialDiffMatch[2] ? 'prev' : specialDiffMatch[1]
       }
 
       // 进行例外排除
@@ -54,7 +54,7 @@ function injectLinks(container) {
         return
       }
       // 少数情况下可能只存在 diff，这种情况应该当做与前一版本比较
-      if (!!oldid && !!curid) {
+      if (!oldid && !curid) {
         oldid = 'prev'
       }
       /**
