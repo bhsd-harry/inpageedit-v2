@@ -6,7 +6,6 @@ const { _hasRight } = require('./_hasRight')
 
 const { $br, $progress } = require('./_elements')
 
-const { findAndReplace } = require('./findAndReplace')
 const { preference } = require('./preference')
 const { progress } = require('./progress')
 const { quickPreview } = require('./quickPreview')
@@ -87,115 +86,6 @@ var quickEdit = function (options) {
       ': <u class="editPage">' +
       options.page.replace(/_/g, ' ') +
       '</u>'
-  )
-  var $editTools = $('<div>', { class: 'editTools' }).append(
-    $('<div>', { class: 'btnGroup' }).append(
-      $('<div>', { class: 'toolSelect' }).append(
-        $('<div>', { class: 'label', text: _msg('editor-edittool-header') }),
-        $('<ul>', { class: 'ul-list' }).append(
-          $('<li>', {
-            class: 'editToolBtn',
-            'data-open': '\n== ',
-            'data-middle': _msg('editor-edittool-header-text'),
-            'data-close': ' ==\n',
-            text: 'H2',
-          }),
-          $('<li>', {
-            class: 'editToolBtn',
-            'data-open': '\n=== ',
-            'data-middle': _msg('editor-edittool-header-text'),
-            'data-close': ' ===\n',
-            text: 'H3',
-          }),
-          $('<li>', {
-            class: 'editToolBtn',
-            'data-open': '\n==== ',
-            'data-middle': _msg('editor-edittool-header-text'),
-            'data-close': ' ====\n',
-            text: 'H4',
-          }),
-          $('<li>', {
-            class: 'editToolBtn',
-            'data-open': '\n===== ',
-            'data-middle': _msg('editor-edittool-header-text'),
-            'data-close': ' =====\n',
-            text: 'H5',
-          })
-        )
-      )
-    ),
-    $('<div>', { class: 'btnGroup' }).append(
-      $('<span>', { class: 'label', text: '格式' }),
-      $('<button>', {
-        class: 'editToolBtn fa fa-bold btn',
-        'data-open': "'''",
-        'data-middle': _msg('editor-edittool-bold'),
-        'data-close': "'''",
-      }),
-      $('<button>', {
-        class: 'editToolBtn fa fa-italic btn',
-        'data-open': "''",
-        'data-middle': _msg('editor-edittool-italic'),
-        'data-close': "''",
-      }),
-      $('<button>', {
-        class: 'editToolBtn fa fa-list-ul btn',
-        'data-open': '\n* ',
-        'data-middle': _msg('editor-edittool-list-bulleted'),
-        'data-close': '\n',
-      }),
-      $('<button>', {
-        class: 'editToolBtn fa fa-list-ol btn',
-        'data-open': '\n# ',
-        'data-middle': _msg('editor-edittool-list-numbered'),
-        'data-close': '\n',
-      }),
-      $('<button>', {
-        class: 'editToolBtn fa fa-won btn',
-        'data-open': '<' + 'nowiki>',
-        'data-middle': _msg('editor-edittool-nowiki'),
-        'data-close': '</nowiki>',
-      }),
-      $('<button>', {
-        class: 'editToolBtn fa fa-level-down fa-rotate-90 btn',
-        'data-open': '<br>\n',
-        'data-middle': '',
-        'data-close': '',
-      })
-    ),
-    $('<div>', { class: 'btnGroup' }).append(
-      $('<span>', { class: 'label', text: '插入' }),
-      $('<button>', {
-        class: 'editToolBtn fa fa-link btn',
-        'data-open': '[' + '[',
-        'data-middle': _msg('editor-edittool-internal-link'),
-        'data-close': ']]',
-      }),
-      $('<button>', {
-        class: 'editToolBtn fa fa-file-image-o btn',
-        'data-open': '[' + '[File:',
-        'data-middle': 'Example.png',
-        'data-close': '|thumb]]',
-      }),
-      $('<button>', {
-        class: 'editToolBtn btn',
-        'data-open': '\n<' + 'gallery>\n',
-        'data-middle': 'Example1.jpg|Description\nExample2.png|Description',
-        'data-close': '\n</gallery>\n',
-        html: '<span class="fa-stack"><i class="fa fa-picture-o fa-stack-1x"></i><i class="fa fa-picture-o fa-stack-1x" style="left: 2px;top: 2px;text-shadow: 1px 1px 0 #fff;"></i></span>',
-      })
-    ),
-    $('<div>', { class: 'btnGroup extra', style: 'display: none' }).append(
-      $('<span>', { class: 'label', text: '自定义' })
-    ),
-    $('<div>', {
-      class: 'btnGroup special-tools',
-      style: 'float: right',
-    }).append(
-      $('<button>', { class: 'btn fa fa-search' }).on('click', function () {
-        findAndReplace($editArea)
-      })
-    )
   )
   var $editArea = $('<textarea>', {
     class: 'editArea',
@@ -301,12 +191,7 @@ var quickEdit = function (options) {
   })
   var $modalContent = $('<div>').append(
     $progress,
-    $('<section>', { class: 'hideBeforeLoaded' }).append(
-      // 编辑工具条
-      $editTools,
-      // 编辑框
-      $editArea
-    )
+    $('<section>', { class: 'hideBeforeLoaded' }).append($editArea)
   )
   if (options.section === 'new') {
     $modalContent.prepend(
@@ -500,47 +385,6 @@ var quickEdit = function (options) {
         )
         textarea.focus()
       }
-      // 添加按钮
-      function addBtn(open, middle, close, icon) {
-        open = open || ''
-        middle = middle || ''
-        close = close || ''
-        icon = 'fa-' + icon || 'fa-wrench'
-        $modalContent.find('.btnGroup.extra').append(
-          $('<button>', {
-            class: 'editToolBtn btn',
-            'data-open': open,
-            'data-middle': middle,
-            'data-close': close,
-            html: `<i class="fa ${icon}"></i>`,
-          })
-        )
-      }
-      // 用户自定义按钮
-      if (InPageEdit.buttons) {
-        var btns = InPageEdit.buttons
-        $editTools.find('.btnGroup.extra').show()
-
-        for (var i = 0; i < btns.length; i++) {
-          var btn = btns[i]
-          addBtn(btn.open, btn.middle, btn.close, btn.text)
-        }
-      }
-      $editTools.find('.editToolBtn').on('click', function (e) {
-        e.preventDefault()
-        var $this = $(this),
-          $open = $this.attr('data-open') || '',
-          $middle = $this.attr('data-middle') || '',
-          $close = $this.attr('data-close') || ''
-        insertText(
-          {
-            open: $open,
-            middle: $middle,
-            close: $close,
-          },
-          $editArea[0]
-        )
-      })
     },
     /**
      * @event onShow
@@ -554,7 +398,6 @@ var quickEdit = function (options) {
         $modalTitle,
         $modalContent,
         $editArea,
-        $editTools,
         $optionsLabel,
       })
       // 绑定事件，在尝试离开页面时提示
