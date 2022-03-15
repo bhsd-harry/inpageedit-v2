@@ -4,26 +4,26 @@ const { pluginCDN } = require('./api')
 /**
  * @module pluginStore 加载InPageEdit插件
  */
-var pluginStore = {
+const pluginStore = {
   /**
    * @module pluginStore.get 获取官方插件
    */
   get() {
     return $.ajax({
-      url: pluginCDN + '/index.json',
+      url: `${pluginCDN}/index.json`,
       dataType: 'json',
       crossDomain: true,
       cache: false,
     })
   },
   saveCache(data) {
-    var ipe = window.InPageEdit || {}
+    const ipe = window.InPageEdit || {}
     ipe.cache = ipe.cache || {}
     ipe.cache.pluginList = data
     window.InPageEdit = ipe
   },
   loadCache() {
-    var ipe = window.InPageEdit || {}
+    const ipe = window.InPageEdit || {}
     ipe.cache = ipe.cache || {}
     return ipe.cache.pluginList
   },
@@ -37,9 +37,9 @@ var pluginStore = {
       console.info('[InPageEdit] 从远程加载非官方插件', name)
     } else {
       const { loadScript } = require('../method/loadScript')
-      loadScript(pluginCDN + '/plugins/' + name).then(
-        () => console.info('[InPageEdit] 插件 ' + name + ' 加载成功'),
-        (err) => console.warn('[InPageEdit] 插件 ' + name + ' 加载失败', err)
+      loadScript(`${pluginCDN}/plugins/${name}`).then(
+        () => console.info(`[InPageEdit] 插件 ${name} 加载成功`),
+        (err) => console.warn(`[InPageEdit] 插件 ${name} 加载失败`, err)
       )
       console.info('[InPageEdit] 从官方插件商店加载插件', name)
     }
@@ -49,9 +49,9 @@ var pluginStore = {
    */
   initUserPlugin() {
     const { preference } = require('./preference')
-    var userPlugins = preference.get('plugins')
-    if (typeof userPlugins === 'object' && userPlugins.length > 0) {
-      $.each(userPlugins, (key, val) => {
+    const userPlugins = preference.get('plugins')
+    if (Array.isArray(userPlugins) && userPlugins.length > 0) {
+      userPlugins.forEach((val) => {
         pluginStore.load(val)
       })
     }
