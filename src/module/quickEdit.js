@@ -650,7 +650,8 @@ var quickEdit = function (options) {
                   options.editNotice = data.parse.text['*']
                   var notice = $modalContent.data('editNotice') || ''
                   notice += '\n' + options.editNotice
-                  if ( // 忽略空白提示；使用$.parseHTML不会执行<script>
+                  if (
+                    // 忽略空白提示；使用$.parseHTML不会执行<script>
                     $.parseHTML(notice)
                       .map((ele) => ele.innerText)
                       .join('')

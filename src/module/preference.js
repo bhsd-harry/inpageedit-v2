@@ -48,19 +48,15 @@ const preference = {
       Object.assign(local, InPageEdit.myPreference)
     }
     var json = $.extend({}, preference._defaults, local)
-    // [type=radio] 的 watchList 需要特殊处理一下
-    switch (json.watchList) {
-      case null:
-      case '':
-        json.watchList = 'nochange'
-        break
-      case 'preferences':
-      case 'nochange':
-      case 'watch':
-      case 'unwatch':
-        break
-      default:
-        json.watchList = json.watchList ? 'watch' : 'unwatch'
+    /**
+     * < 14.3.0 版本中的 watchList 语义与现在不同
+     * 需要统一转换为 'preferences'
+     * @bhsd-harry @Dragon-Fish 2022年3月15日
+     */
+    if (
+      !['watch', 'unwatch', 'preferences', 'nochange'].includes(json.watchList)
+    ) {
+      json.watchList = 'preferences'
     }
     if (typeof setting === 'string' && setting !== '') {
       return json[setting] ? json[setting] : null
