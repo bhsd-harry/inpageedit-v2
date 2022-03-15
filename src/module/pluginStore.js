@@ -36,12 +36,8 @@ const pluginStore = {
       mw.loader.load(name)
       console.info('[InPageEdit] 从远程加载非官方插件', name)
     } else {
-      const { loadScript } = require('../method/loadScript')
-      loadScript(`${pluginCDN}/plugins/${name}`).then(
-        () => console.info(`[InPageEdit] 插件 ${name} 加载成功`),
-        (err) => console.warn(`[InPageEdit] 插件 ${name} 加载失败`, err)
-      )
-      console.info('[InPageEdit] 从官方插件商店加载插件', name)
+      require(`../plugins/${name}`)
+      console.info('[InPageEdit] 从本地加载插件', name)
     }
   },
   /**
