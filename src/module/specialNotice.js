@@ -1,10 +1,9 @@
-// const api = require('./api.json');
 const { _msg } = require('./_msg')
 
 /**
  * @module specialNotice 特别通知
  */
-var specialNotice = function () {
+const specialNotice = function () {
   ssi_modal.notify(
     'dialog',
     {
@@ -16,7 +15,7 @@ var specialNotice = function () {
         className: 'btn btn-primary',
       },
     },
-    function (e, modal) {
+    (e, modal) => {
       localStorage.setItem('InPageEditNoticeId', _msg('noticeid'))
       modal.close()
     }
