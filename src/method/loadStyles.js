@@ -1,5 +1,4 @@
 const { pluginCDN } = require('../module/api')
-const _dir = require('./_dir')
 
 function loadStyles(purge) {
   // 放在越上面优先级越高
@@ -11,9 +10,6 @@ function loadStyles(purge) {
   ]
 
   styleFiles.forEach((link) => {
-    if (!/^https?:\/\//.test(link)) {
-      link = _dir + link
-    }
     if (purge) {
       link += '?timestamp' + Date.now()
     }

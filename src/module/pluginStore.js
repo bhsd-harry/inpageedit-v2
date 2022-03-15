@@ -1,4 +1,3 @@
-// const _dir = require('../method/_dir');
 // const { _msg } = require('./_msg');
 const { pluginCDN } = require('./api')
 

@@ -1,5 +1,4 @@
 // 导入方法
-const _dir = require('./_dir')
 const { initQueryData } = require('./initQueryData')
 const { loadStyles } = require('./loadStyles')
 const { updateNotice } = require('./updateNotice')
@@ -64,7 +63,6 @@ module.exports = async function init() {
 
   // 写入模块
   var InPageEdit = {
-    _dir,
     about,
     api,
     articleLink,
@@ -92,7 +90,7 @@ module.exports = async function init() {
   }
 
   // 锁定重要变量
-  const importantVariables = ['_dir', 'api', 'version']
+  const importantVariables = ['api', 'version']
   importantVariables.forEach((key) => {
     try {
       Object.freeze(InPageEdit[key])
