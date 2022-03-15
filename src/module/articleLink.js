@@ -37,7 +37,7 @@ function articleLink(el) {
       return
     }
     // @FIXME 暂时屏蔽 preload，应在后面的版本中支持
-    if (getParamValue('preload', url)) {
+    if (uri.preload) {
       return
     }
 

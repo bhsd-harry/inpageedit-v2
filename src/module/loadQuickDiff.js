@@ -1,6 +1,5 @@
 const config = mw.config.get()
 const { _msg } = require('./_msg')
-const { _analytics } = require('./_analytics')
 const { _uri } = require('./_uri')
 
 const { quickDiff } = require('./quickDiff')
@@ -90,7 +89,6 @@ function injectLinks(container) {
       // 点击事件
       $this.click((e) => {
         e.preventDefault()
-        _analytics('quick_diff_recentchanges')
         return quickDiff(params)
       })
     })
@@ -110,7 +108,6 @@ const loadQuickDiff = function (container) {
       $('<button>', { text: _msg('quick-diff') })
         .click((e) => {
           e.preventDefault()
-          _analytics('quick_diff_history_page')
           const before = $('.selected.before').data('mw-revid'),
             after = $('.selected.after').data('mw-revid')
           quickDiff({ fromrev: after, torev: before })
