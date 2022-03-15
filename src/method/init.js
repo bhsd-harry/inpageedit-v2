@@ -10,7 +10,7 @@ const version = require('../module/version')
  * @method initMain
  * @return {Object} InPageEdit
  */
-module.exports = async function init() {
+async function init() {
   mw.hook('InPageEdit.init.before').fire()
   await mw.loader.using(['mediawiki.api', 'mediawiki.Title', 'mediawiki.Uri'])
   // 是否需要刷新缓存
@@ -100,6 +100,7 @@ module.exports = async function init() {
 
   // 触发钩子，传入上下文
   mw.hook('InPageEdit').fire({
+    _analysis() {},
     _msg,
     InPageEdit,
   })
@@ -113,3 +114,5 @@ module.exports = async function init() {
   // 传回InPageEdit
   return InPageEdit
 }
+
+module.exports = init

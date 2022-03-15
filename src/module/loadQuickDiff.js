@@ -37,11 +37,11 @@ function injectLinks(container) {
           'i'
         )
         const specialDiffMatch = title.getMainText().match(specialDiffReg)
-      }
-      if (specialDiffMatch) {
-        // 可能出现 [[Special:Diff/123]]，这种情况应该当做与前一版本比较
-        diff = specialDiffMatch[2] || specialDiffMatch[1]
-        oldid = !specialDiffMatch[2] ? 'prev' : specialDiffMatch[1]
+        if (specialDiffMatch) {
+          // 可能出现 [[Special:Diff/123]]，这种情况应该当做与前一版本比较
+          diff = specialDiffMatch[2] || specialDiffMatch[1]
+          oldid = !specialDiffMatch[2] ? 'prev' : specialDiffMatch[1]
+        }
       }
 
       // 进行例外排除
