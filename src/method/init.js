@@ -57,9 +57,6 @@ async function init() {
   articleLink()
   updateNotice()
 
-  // !暂定，触发用户插件
-  pluginStore.initUserPlugin()
-
   // 写入模块
   var InPageEdit = {
     about,
@@ -112,7 +109,10 @@ async function init() {
   )
 
   // 传回InPageEdit
-  return InPageEdit
+  $.extend(window.InPageEdit, InPageEdit)
+
+  // !暂定，触发用户插件
+  pluginStore.initUserPlugin()
 }
 
 module.exports = init
