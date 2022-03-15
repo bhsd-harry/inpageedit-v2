@@ -1,7 +1,6 @@
 const version = require('../module/version')
 
 const { _msg } = require('../module/_msg')
-// const api = require('../module/api.json');
 const { versionInfo } = require('../module/versionInfo')
 const { specialNotice } = require('../module/specialNotice')
 
@@ -28,20 +27,6 @@ function updateNotice() {
       },
       onClose() {
         localStorage.setItem('InPageEditVersion', version)
-        // ssi_modal.notify('', {
-        //   className: 'in-page-edit',
-        //   content: _msg('updatelog-after-close', `[${api.updatelogsUrl} ${api.updatelogsUrl}]`, `[${api.githubLink}/issues ${_msg('updatelog-file-issue')}]`),
-        //   closeAfter: {
-        //     time: 10
-        //   },
-        //   buttons: [{
-        //     className: 'btn btn-primary',
-        //     label: _msg('ok'),
-        //     method(a, modal) {
-        //       modal.close();
-        //     }
-        //   }]
-        // });
       },
     })
   }
