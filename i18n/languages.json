@@ -1141,7 +1141,6 @@
         "preference-editor-label": "编辑器设置",
         "preference-outSideClose": "点击编辑器外侧关闭",
         "preference-setMinor": "预设编辑为小编辑",
-        "preference-noConfirmEdit": "提交编辑时无需确认",
         "preference-summary-label": "编辑摘要",
         "preference-editSummary": "<code>$section</code> - 将会被替换为<code>/<!-- -->* 段落名字 */</code><br><code>$oldid</code> - 将会被替换为<code>编辑自[<!-- -->[Special:Diff/oldid]]</code>",
         "preference-analysis-label": "数据收集",
