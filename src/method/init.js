@@ -13,7 +13,7 @@ const version = require('../module/version')
  */
 module.exports = async function init() {
   mw.hook('InPageEdit.init.before').fire()
-  await mw.loader.using(['mediawiki.user', 'mediawiki.Uri'])
+  await mw.loader.using(['mediawiki.api', 'mediawiki.Title', 'mediawiki.Uri'])
   // 是否需要刷新缓存
   const noCache = !!(
     mw.util.getParamValue('dev') ||
