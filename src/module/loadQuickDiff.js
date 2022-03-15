@@ -1,57 +1,61 @@
 const config = mw.config.get()
 const { _msg } = require('./_msg')
 const { _analytics } = require('./_analytics')
-const { getParamValue } = mw.util
+const { _uri } = require('./_uri')
 
 const { quickDiff } = require('./quickDiff')
 const { quickEdit } = require('./quickEdit')
 
 function injectLinks(container) {
   $(container || '#mw-content-text')
-    .find('a[href]:not(.ipe-diff-mounted)')
-    .toArray()
-    .forEach((el) => {
-      const $this = $(el),
-        href = $this.attr('href')
+    .find('a[href]:not(.ipe-diff-mounted, .extiw)')
+    .each(function () {
+      const uri = _uri(this)
+      if (uri === null) {
+        return
+      }
       /** @type {'prev' | 'next' | 'cur' | '0' | `${number}`} */
-      let diff = getParamValue('diff', href),
+      let diff = uri.diff,
         /** @type {`${number}` | null} */
-        curid = getParamValue('curid', href),
+        curid = uri.curid,
         /** @type {'prev' | 'next' | 'cur' | `${number}`} */
-        oldid = getParamValue('oldid', href),
-        timestamp = getParamValue('timestamp', href)
+        oldid = uri.oldid
       const RELATIVE_TYPES = ['prev', 'next', 'cur']
 
       // 形如 Special:Diff/[oldid]/[diff]
-      const specialDiffName = mw.config
-        .get('wgSpecialPageAliases', [])
-        .find(({ realname }) => realname === 'Diff')
-        ?.aliases.map((i) => [i, encodeURI(i)])
-        .flat() || ['Diff']
-      const specialDiffReg = new RegExp(
-        `^${config.wgArticlePath.replace('$1', '')}(?:Special|${
-          config.wgFormattedNamespaces[-1]
-        }):(?:${specialDiffName.join('|')})/(\\d+|${RELATIVE_TYPES.join(
-          '|'
-        )})/(\\d+|${RELATIVE_TYPES.join('|')})$`
-      )
-      const specialDiffMatch = href.match(specialDiffReg)
-      if (specialDiffMatch) {
-        oldid = specialDiffMatch[1]
-        diff = specialDiffMatch[2]
+      const title = mw.Title.newFromText(uri.title || '')
+      if (diff === undefined && title?.getNamespaceId() === -1) {
+        const specialDiffName = mw.config
+          .get('wgSpecialPageAliases', [])
+          .find(({ realname }) => realname === 'Diff')
+          ?.aliases || ['Diff']
+        const specialDiffReg = new RegExp(
+          `^(?:${specialDiffName.join('|')})/(\\d+|${RELATIVE_TYPES.join(
+            '|'
+          )})(?:/(\\d+|${RELATIVE_TYPES.join('|')}))?$`,
+          'i'
+        )
+        const specialDiffMatch = title.getMainText().match(specialDiffReg)
+        if (specialDiffMatch) {
+          oldid = specialDiffMatch[1]
+          diff = specialDiffMatch[2]
+          if (diff === undefined) {
+            diff = 'prev'
+          }
+        }
       }
 
       // 进行例外排除
       if (
         // 没有 diff 参数一般不是比较链接
-        diff === null ||
+        diff === undefined ||
         // Special:Undelete 中的比较链接
-        timestamp !== null
+        config.wgCanonicalSpecialPageName === 'Undelete'
       ) {
         return
       }
       // 进行状态标记
-      $this.addClass('ipe-diff-mounted')
+      const $this = $(this).addClass('ipe-diff-mounted')
       // 缓存请求参数
       const params = {}
       // relative 只能出现在 to 参数中，需要特殊处理
@@ -75,7 +79,7 @@ function injectLinks(container) {
       $this.attr('ipe-diff-params', JSON.stringify(params))
 
       // 点击事件
-      $this.on('click', function (e) {
+      $this.click((e) => {
         e.preventDefault()
         _analytics('quick_diff_recentchanges')
         return quickDiff(params)
@@ -85,39 +89,32 @@ function injectLinks(container) {
 
 const loadQuickDiff = function (container) {
   // 最近更改
-  if ($('.mw-rcfilters-enabled').length > 0) {
-    setInterval(() => {
-      injectLinks(container)
-    }, 500)
-    $('.mw-rcfilters-enabled').addClass('ipe-quickdiff-active')
-  } else {
-    injectLinks(container)
-  }
+  injectLinks(container)
 
   // 查看历史页面的比较按钮与快速编辑
   if (config.wgAction === 'history') {
     $('.historysubmit.mw-history-compareselectedversions-button').after(
-      $('<button>')
-        .text(_msg('quick-diff'))
-        .on('click', function (e) {
+      $('<button>', { text: _msg('quick-diff') })
+        .click((e) => {
           e.preventDefault()
           _analytics('quick_diff_history_page')
-          const before = $('.selected.before').attr('data-mw-revid'),
-            after = $('.selected.after').attr('data-mw-revid')
+          const before = $('.selected.before').data('mw-revid'),
+            after = $('.selected.after').data('mw-revid')
           quickDiff({ fromrev: after, torev: before })
         })
     )
-    $('[data-mw-revid]').each(function () {
+    $('li[data-mw-revid]').each(function () {
       var $this = $(this),
-        oldid = $this.attr('data-mw-revid')
+        oldid = $this.data('mw-revid')
       $this.find('.mw-history-undo').after(
         $('<span>').append(
           ' | ',
           $('<a>', {
-            href: 'javascript:;',
+            href: '#',
             class: 'in-page-edit-article-link',
             text: _msg('quick-edit'),
-          }).on('click', function () {
+          }).click((e) => {
+            e.preventDefault()
             quickEdit({
               page: config.wgPageName,
               revision: oldid,

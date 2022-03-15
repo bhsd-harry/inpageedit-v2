@@ -3,8 +3,7 @@ const { _msg } = require('./_msg')
 
 const { preference } = require('./preference')
 const { quickEdit } = require('./quickEdit')
-
-const { getParamValue } = mw.util
+const { _uri } = require('./_uri')
 
 /**
  * @module articleLink 获取段落编辑以及编辑链接
@@ -21,45 +20,25 @@ function articleLink(el) {
   /** @type {JQuery<HTMLAnchorElement>} */
   const $el = $(el)
   $el.each(function () {
-    const $this = $(this)
-    if (
-      $this.attr('href') === undefined ||
-      $this.attr('href').startsWith('#')
-    ) {
+    const uri = _uri(this)
+    if (uri === null || uri.title === undefined) {
       return
     }
-    // element.href必定带protocol
-    let url = $this.get(0).href,
-      action = getParamValue('action', url) || getParamValue('veaction', url),
-      title = getParamValue('title', url),
-      section = getParamValue('section', url)
-        ? getParamValue('section', url).replace(/T-/, '')
-        : null,
-      revision = getParamValue('oldid', url),
-      wikiUrl = `${location.protocol}//${config.wgServerName}`
 
-    // 不是本地编辑链接
-    if (!url.startsWith(wikiUrl)) {
-      return
-    }
+    let action = uri.action || uri.veaction,
+      title = uri.title,
+      section = uri.section
+        ? uri.section.replace(/T-/, '')
+        : null,
+      revision = uri.oldid
 
     // 暂时屏蔽 undo
-    if (getParamValue('undo', url)) {
+    if (uri.undo) {
       return
     }
 
-    // 不是 index.php?title=FOO 形式的url
-    if (title === null && ['edit', 'editsource'].includes(action)) {
-      let articlePath = config.wgArticlePath.replace('$1', '')
-      // 掐头去尾，获取包含文章路径的字符串
-      title = url.slice(wikiUrl.length + articlePath.length).split('?')[0]
-    }
-
-    // 解码 URL
-    title = decodeURIComponent(title)
-
-    if (['edit', 'editsource'].includes(action) && title !== undefined) {
-      $this.addClass('ipe-articleLink-resolved').after(
+    if (['edit', 'editsource'].includes(action)) {
+      $(this).addClass('ipe-articleLink-resolved').after(
         $('<span>', {
           class: 'in-page-edit-article-link-group',
         }).append(
@@ -75,7 +54,9 @@ function articleLink(el) {
             } else if (section !== null) {
               options.section = section
             }
-            if (!config.wgIsArticle) options.reload = false
+            if (!config.wgIsArticle) {
+              options.reload = false
+            }
             quickEdit(options)
           })
         )

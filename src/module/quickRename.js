@@ -126,7 +126,7 @@ var quickRename = function (from, to) {
                 content: _msg('notify-rename-success'),
                 title: _msg('notify-success'),
               })
-              location.href = config.wgArticlePath.replace('$1', to)
+              location.href = mw.util.getUrl(to)
             })
             .fail(function (errorCode, feedback, errorThrown) {
               progress(false)

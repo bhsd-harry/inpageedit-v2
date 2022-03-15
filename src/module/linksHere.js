@@ -14,8 +14,7 @@ const { mwApi, config } = require('./util')
  * @returns {Boolean} Is file page?
  */
 const isFile = (title) => {
-  const fileReg = new RegExp(`^(File|${config.wgFormattedNamespaces[6]}):`)
-  return fileReg.test(title)
+  return mw.Title.newFromText(title).getNamespaceId() === 6
 }
 
 /**
