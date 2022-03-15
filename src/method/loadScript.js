@@ -1,4 +1,4 @@
-var loadScript = function (src, noCache) {
+const loadScript = function (src, noCache) {
   return $.ajax({
     url: src,
     dataType: 'script',
