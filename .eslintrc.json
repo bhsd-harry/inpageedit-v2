@@ -79,7 +79,6 @@
 		"no-new-object": 2,
 		"no-new-wrappers": 2,
 		"no-octal-escape": 2,
-		"no-param-reassign": 1,
 		"no-return-assign": 2,
 		"no-return-await": 2,
 		"no-script-url": 2,
@@ -141,7 +140,11 @@
 		"brace-style": 2,
 		"comma-dangle": [
 			2,
-			"always-multiline"
+			{
+				"arrays": "always-multiline",
+				"objects": "always-multiline",
+				"functions": "never"
+			}
 		],
 		"comma-spacing": 2,
 		"comma-style": 2,
@@ -179,10 +182,7 @@
 			2,
 			"always"
 		],
-		"operator-linebreak": [
-			2,
-			"before"
-		],
+		"operator-linebreak": 2,
 		"padded-blocks": [
 			2,
 			"never"

@@ -1,10 +1,10 @@
-var config = mw.config.get()
+const { config } = require('../module/util')
 
 // 设置
 const cacheTime = 2 * 60 * 60 * 1000
 const funcName = 'InPageEdit'
-const localCacheName = 'i18n-cache-' + funcName + '-content'
-const localCacheTime = 'i18n-cache-' + funcName + '-timestamp'
+const localCacheName = `i18n-cache-${funcName}-content`
+const localCacheTime = `i18n-cache-${funcName}-timestamp`
 
 /**
  * @method i18n Get i18n data
@@ -18,14 +18,14 @@ function syncI18nData(noCache) {
     return true
   }
   // 缓存存在且缓存未过期
+  let json = localStorage.getItem(localCacheName)
   if (
-    localStorage.getItem(localCacheName) &&
+    json &&
     now - localStorage.getItem(localCacheTime) < cacheTime &&
     !noCache
   ) {
-    var json = {}
     try {
-      json = JSON.parse(localStorage.getItem(localCacheName))
+      json = JSON.parse(json)
     } catch (e) {
       console.warn('[InPageEdit] i18n 数据不合法')
       getOriginalData()
@@ -33,15 +33,11 @@ function syncI18nData(noCache) {
     }
     if (json.en) {
       return true
-    } else {
-      console.warn('[InPageEdit] i18n 数据可能已损坏')
-      getOriginalData()
-      return true
     }
-  } else {
-    getOriginalData()
-    return true
+    console.warn('[InPageEdit] i18n 数据可能已损坏')
   }
+  getOriginalData()
+  return true
 }
 
 /**
@@ -58,11 +54,8 @@ function saveToCache(data) {
  * @function getOriginalData
  */
 function getOriginalData() {
-  console.time('[InPageEdit] 从本地获取 i18n 数据')
-  var data = require('../../i18n/languages.json')
-  if (typeof data !== 'object') data = {}
+  const data = require('../../i18n/languages.json')
   saveToCache(data)
-  console.timeEnd('[InPageEdit] 从本地获取 i18n 数据')
   return data
 }
 
