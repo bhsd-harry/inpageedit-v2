@@ -92,7 +92,7 @@ mw.loader.addStyleTag(`
   font-style: normal;
   font-family: sans-serif;
   font-weight: bold;
-  background: #ffffff;
+  background: #fff;
   color: #252525;
   font-size: 1.1em;
   line-height: 1.8em;
@@ -149,8 +149,8 @@ mw.loader.addStyleTag(`
 }
 
 .in-page-edit.ipe-editor .toolSelect .label {
-  color: #222222;
-  background-color: #ffffff;
+  color: #222;
+  background-color: #fff;
   background-image: linear-gradient(transparent, transparent),
     url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHBhdGggZD0iTTEzLjAwMiA2LjAwMWwtNSA1LjAwMS01LTUuMDAxeiIgZmlsbD0iIzc5Nzk3OSIvPjwvc3ZnPg==');
   background-repeat: no-repeat;
@@ -164,7 +164,7 @@ mw.loader.addStyleTag(`
   list-style: none;
   margin: 0;
   padding: 0;
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #c8ccd1;
   position: absolute;
   z-index: 50;
@@ -265,7 +265,7 @@ mw.loader.addStyleTag(`
 }
 
 .in-page-edit .btn.btn-secondary:hover {
-  background-color: #ffffff;
+  background-color: #fff;
   color: #454545;
 }
 
@@ -291,13 +291,13 @@ mw.loader.addStyleTag(`
 
 .in-page-edit .btn:disabled {
   background-color: #c8ccd1 !important;
-  color: #ffffff !important;
+  color: #fff !important;
   cursor: not-allowed;
 }
 
 .in-page-edit .btn:disabled:hover {
   background-color: #c8ccd1 !important;
-  color: #ffffff !important;
+  color: #fff !important;
 }
 
 .in-page-edit .btn:disabled .ssi-countDown {
@@ -347,7 +347,7 @@ mw.loader.addStyleTag(`
 .in-page-edit .btn.btn-primary.btn-danger {
   background: #d33;
   border-color: #d33;
-  color: #ffffff;
+  color: #fff;
 }
 
 .in-page-edit .btn.btn-primary.btn-danger:hover {
@@ -603,7 +603,7 @@ mw.loader.addStyleTag(`
 .in-page-edit label input[type='checkbox']:active + span::before,
 .in-page-edit label input[type='checkbox']:focus + span::before {
   box-shadow: inset 0 0px 0px 1px rgb(255, 255, 255);
-  border-color: #3366cc;
+  border-color: #36c;
 }
 
 .in-page-edit label input[type='checkbox'],
