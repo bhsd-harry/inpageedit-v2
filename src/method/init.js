@@ -19,7 +19,7 @@ module.exports = async function init() {
     version !== localStorage.getItem('InPageEditVersion')
   )
   // 加载样式表
-  loadStyles(noCache)
+  loadStyles()
   // 等待前置项目
   require('../ssi_modal/ssi-modal.js')
   syncI18nData(noCache)

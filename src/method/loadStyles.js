@@ -1,6 +1,6 @@
 const { pluginCDN } = require('../module/api')
 
-function loadStyles(purge) {
+function loadStyles() {
   // 放在越上面优先级越高
   const styleFiles = [
     // ssi-modal Style
@@ -10,9 +10,6 @@ function loadStyles(purge) {
   ]
 
   styleFiles.forEach((link) => {
-    if (purge) {
-      link += '?timestamp' + Date.now()
-    }
     $('head').prepend(
       $('<link>', { href: link, rel: 'stylesheet', 'data-ipe': 'style' })
     )
