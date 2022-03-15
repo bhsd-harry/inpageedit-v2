@@ -22,9 +22,9 @@ mw.hook('InPageEdit.quickEdit').add(({ $editArea, $modalContent }) => {
   } else {
     $editArea.wikiEditor('addModule', {
       ...$.wikiEditor.modules.toolbar.config.getDefaultConfig(),
-      ...$.wikiEditor.modules.dialogs.config.getDefaultConfig(),
+      ...dialogs.config.getDefaultConfig(),
     })
-    $.wikiEditor.modules.dialogs.config.replaceIcons($editArea)
+    dialogs.config.replaceIcons($editArea)
   }
   $modalContent.find('#wikiEditor-ui-toolbar .tab > .current').click()
 })
