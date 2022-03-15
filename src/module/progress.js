@@ -1,6 +1,6 @@
 const { _msg } = require('./_msg')
 
-const { $progress } = require('./_elements.js')
+const { $progress } = require('./_elements')
 
 /**
  * @module progress 载入中模块
@@ -11,22 +11,22 @@ const { $progress } = require('./_elements.js')
  * - false: Close top progress box
  * - String: Show new progress box with title
  */
-var progress = function (title) {
+const progress = function (title) {
+  const $loadingbox = $('.in-page-edit.loadingbox')
   if (title === true) {
-    $('.in-page-edit.loadingbox .ssi-modalTitle').html(_msg('done'))
-    $('.in-page-edit.loadingbox .ipe-progress').addClass('done')
+    $loadingbox.find('.ssi-modalTitle').html(_msg('done'))
+    $loadingbox.find('.ipe-progress').addClass('done')
   } else if (title === false) {
-    if ($('.in-page-edit.loadingbox').length > 0) {
-      $('.in-page-edit.loadingbox').appendTo('body')
-      ssi_modal.close()
+    if ($loadingbox.length > 0) {
+      ssi_modal.close($loadingbox)
     }
   } else {
-    if ($('.in-page-edit.loadingbox').length > 0) return
-    if (typeof title === 'undefined') {
-      title = 'Loading...'
+    if ($loadingbox.length > 0) {
+      return
     }
+    title = title === undefined ? 'Loading...' : title
     ssi_modal.show({
-      title: title,
+      title,
       content: $progress,
       className: 'in-page-edit loadingbox',
       center: true,
