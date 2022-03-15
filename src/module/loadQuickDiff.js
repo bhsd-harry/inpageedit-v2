@@ -25,23 +25,23 @@ function injectLinks(container) {
       // 形如 Special:Diff/[oldid]/[diff]
       const title = mw.Title.newFromText(uri.title || '')
       if (diff === undefined && title?.getNamespaceId() === -1) {
-        const specialDiffName = mw.config
-          .get('wgSpecialPageAliases', [])
-          .find(({ realname }) => realname === 'Diff')
-          ?.aliases || ['Diff']
+        const specialDiffName = (
+          mw.config
+            .get('wgSpecialPageAliases', [])
+            .find(({ realname }) => realname === 'Diff')
+            ?.aliases || ['Diff']
+        ).join('|')
         const specialDiffReg = new RegExp(
-          `^(?:${specialDiffName.join('|')})/(\\d+|${RELATIVE_TYPES.join(
+          `^(?:${specialDiffName})/(\\d+|${RELATIVE_TYPES.join(
             '|'
           )})(?:/(\\d+|${RELATIVE_TYPES.join('|')}))?$`,
           'i'
         )
         const specialDiffMatch = title.getMainText().match(specialDiffReg)
         if (specialDiffMatch) {
-          oldid = specialDiffMatch[1]
-          diff = specialDiffMatch[2]
-          if (diff === undefined) {
-            diff = 'prev'
-          }
+          // 可能出现 [[Special:Diff/123]]，这种情况应该当做与前一版本比较
+          diff = specialDiffMatch[2] || specialDiffMatch[1]
+          oldid = !specialDiffMatch[2] ? 'prev' : specialDiffMatch[1]
         }
       }
 
@@ -54,15 +54,24 @@ function injectLinks(container) {
       ) {
         return
       }
-      // 进行状态标记
-      const $this = $(this).addClass('ipe-diff-mounted')
-      // 缓存请求参数
-      const params = {}
-      // relative 只能出现在 to 参数中，需要特殊处理
+      // 少数情况下可能只存在 diff，这种情况应该当做与前一版本比较
+      if (!!oldid && !!curid) {
+        oldid = 'prev'
+      }
+      /**
+       * 描述型关系只能出现在 torelative 参数中
+       * fromrelative 是不被接受的，所以进行翻转
+       */
       if (RELATIVE_TYPES.includes(oldid)) {
         // eslint-disable-next-line no-extra-semi
         ;[diff, oldid] = [oldid, diff]
       }
+
+      // 进行状态标记
+      const $this = $(this).addClass('ipe-diff-mounted')
+
+      // 构建请求参数
+      const params = {}
       const getParamType = (i) => {
         if (RELATIVE_TYPES.includes(i) || i === null) {
           return 'relative'
@@ -88,7 +97,11 @@ function injectLinks(container) {
 }
 
 const loadQuickDiff = function (container) {
-  // 最近更改
+  /**
+   * 此处原本使用 setInterval 处理开启了自动刷新的最近更改带来的问题
+   * 现发现 wikipage.content 钩子似乎会在列表刷新时触发，因此不再需要 setInterval
+   * @Dragon-Fish 2022年3月15日
+   */
   injectLinks(container)
 
   // 查看历史页面的比较按钮与快速编辑
