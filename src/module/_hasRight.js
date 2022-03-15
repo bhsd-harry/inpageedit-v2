@@ -1,4 +1,4 @@
-var config = mw.config.get()
+const { config } = require('./util')
 
 /**
  * @module _hasRight 是否拥有权限
@@ -6,14 +6,7 @@ var config = mw.config.get()
  * @return {Boolean}
  */
 const _hasRight = function (right) {
-  if (config.wgUserIsBlocked === true) {
-    return false
-  }
-  if (mw.config.get('wgUserRights').indexOf(right) > -1) {
-    return true
-  } else {
-    return false
-  }
+  return !config.wgUserIsBlocked && config.wgUserRights.includes(right)
 }
 
 module.exports = {
