@@ -20,12 +20,10 @@ mw.hook('InPageEdit.quickEdit').add(({ $editArea, $modalContent }) => {
   if (typeof mw.addWikiEditor === 'function') {
     mw.addWikiEditor($editArea)
   } else {
-    $editArea.wikiEditor(
-      'addModule', {
-        ...$.wikiEditor.modules.toolbar.config.getDefaultConfig(),
-        ...$.wikiEditor.modules.dialogs.config.getDefaultConfig(),
-      }
-    )
+    $editArea.wikiEditor('addModule', {
+      ...$.wikiEditor.modules.toolbar.config.getDefaultConfig(),
+      ...$.wikiEditor.modules.dialogs.config.getDefaultConfig(),
+    })
     $.wikiEditor.modules.dialogs.config.replaceIcons($editArea)
   }
   $modalContent.find('#wikiEditor-ui-toolbar .tab > .current').click()

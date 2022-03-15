@@ -67,21 +67,22 @@
     ? await mw.loader.using('ext.CodeMirror.lib')
     : await getScript(`${CM_CDN}/lib/codemirror.min.js`)
   // Load addons
-  const wikiEditor = InPageEdit.preference.get('plugins').some((i) => /wiki-editor/.test(i))
+  const wikiEditor = InPageEdit.preference
+    .get('plugins')
+    .some((i) => /wiki-editor/.test(i))
   const search = (target) => {
     return () => {
-      $.wikiEditor.modules.dialogs.api.openDialog(target.data('wikiEditorContext'), 'search-and-replace')
+      $.wikiEditor.modules.dialogs.api.openDialog(
+        target.data('wikiEditorContext'),
+        'search-and-replace'
+      )
     }
   }
   const ADDON_LIST = [
     'selection/active-line.min.js',
-    ...wikiEditor
+    ...(wikiEditor
       ? []
-      : [
-        'dialog/dialog.js',
-        'search/searchcursor.js',
-        'search/search.js',
-      ],
+      : ['dialog/dialog.js', 'search/searchcursor.js', 'search/search.js']),
   ]
   await Promise.all(ADDON_LIST.map((i) => getScript(`${CM_CDN}/addon/${i}`)))
 
@@ -257,10 +258,12 @@
         lineNumbers: true,
         lineWrapping: true,
         styleActiveLine: true,
-        extraKeys: wikiEditor ? {
-          'Ctrl-F': search(target),
-          'Cmd-F': search(target),
-        } : { 'Alt-F': 'findPersistent' },
+        extraKeys: wikiEditor
+          ? {
+              'Ctrl-F': search(target),
+              'Cmd-F': search(target),
+            }
+          : { 'Alt-F': 'findPersistent' },
         theme: THEME,
         mode,
         mwConfig,
@@ -319,7 +322,7 @@
         scrollToCaretPosition() {
           cm.scrollIntoView(null)
           return this
-        }
+        },
       }
       target.textSelection('register', cmTextSelection)
       return cm
