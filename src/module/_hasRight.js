@@ -5,7 +5,7 @@ const { config } = require('./util')
  * @param {String} right
  * @return {Boolean}
  */
-const _hasRight = function (right) {
+const _hasRight = (right) => {
   return !config.wgUserIsBlocked && config.wgUserRights.includes(right)
 }
 

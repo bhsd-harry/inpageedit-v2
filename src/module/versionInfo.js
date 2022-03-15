@@ -7,7 +7,7 @@ const { updatelogsUrl, githubLink, aboutUrl } = require('./api')
  * @module versionInfo 版本信息模块
  * @description Show Update Logs Modal box
  */
-const versionInfo = function () {
+const versionInfo = () => {
   // 显示模态框
   ssi_modal.show({
     className: 'in-page-edit update-logs-modal',

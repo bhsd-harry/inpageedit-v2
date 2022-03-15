@@ -3,7 +3,7 @@ const { _msg } = require('./_msg')
 /**
  * @module specialNotice 特别通知
  */
-const specialNotice = function () {
+const specialNotice = () => {
   ssi_modal.notify(
     'dialog',
     {

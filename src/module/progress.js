@@ -11,7 +11,7 @@ const { $progress } = require('./_elements')
  * - false: Close top progress box
  * - String: Show new progress box with title
  */
-const progress = function (title) {
+const progress = (title) => {
   const $loadingbox = $('.in-page-edit.loadingbox')
   if (title === true) {
     $loadingbox.find('.ssi-modalTitle').html(_msg('done'))
