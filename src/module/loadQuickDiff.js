@@ -23,7 +23,7 @@ function injectLinks(container) {
 
       // 形如 Special:Diff/[oldid]/[diff]
       const title = mw.Title.newFromText(uri.title || '')
-      if (diff === undefined && title.getNamespaceId() === -1) {
+      if (diff === undefined && title && title.getNamespaceId() === -1) {
         const specialDiffName = (
           mw.config
             .get('wgSpecialPageAliases', [])

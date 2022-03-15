@@ -288,6 +288,9 @@
       }
       // jQuery.textSelection overrides for CodeMirror.
       // See jQuery.textSelection.js for method documentation
+      if (mw.loader.getState('jquery.textSelection') !== 'ready') {
+        return cm
+      }
       const cmTextSelection = {
         getContents() {
           return cm.getValue()
