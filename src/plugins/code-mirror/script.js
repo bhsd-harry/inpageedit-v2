@@ -75,11 +75,13 @@
   }
   const ADDON_LIST = [
     'selection/active-line.min.js',
-    'dialog/dialog.js',
-    ... wikiEditor ? [] : [
-      'search/searchcursor.js',
-      'search/search.js',
-    ]
+    ...wikiEditor
+      ? []
+      : [
+        'dialog/dialog.js',
+        'search/searchcursor.js',
+        'search/search.js',
+      ],
   ]
   await Promise.all(ADDON_LIST.map((i) => getScript(`${CM_CDN}/addon/${i}`)))
 
