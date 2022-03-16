@@ -8,9 +8,9 @@
  */
 
 // eslint-disable-next-line no-extra-semi
-;(() => {
+;(async () => {
   // 创建 InPageEdit 变量
-  window.InPageEdit = window.InPageEdit || {}
+  const InPageEdit = window.InPageEdit || {}
 
   // 防止多次运行
   if (InPageEdit.loaded) {
@@ -23,5 +23,9 @@
   const init = require('./method/init')
 
   // 合并入全局变量
-  init()
+  // eslint-disable-next-line require-atomic-updates
+  window.InPageEdit = {
+    ...InPageEdit,
+    ...(await init()),
+  }
 })()

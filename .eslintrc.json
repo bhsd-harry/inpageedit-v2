@@ -14,8 +14,7 @@
 	"globals": {
 		"mw": "readonly",
 		"$": "readonly",
-		"ssi_modal": "readonly",
-		"InPageEdit": "writeable"
+		"ssi_modal": "readonly"
 	},
 	"rules": {
 		"array-callback-return": [
