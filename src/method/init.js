@@ -12,7 +12,12 @@ const version = require('../module/version')
  */
 async function init() {
   mw.hook('InPageEdit.init.before').fire()
-  await mw.loader.using(['mediawiki.api', 'mediawiki.Title', 'mediawiki.Uri'])
+  await mw.loader.using([
+    'mediawiki.jqueryMsg',
+    'mediawiki.api',
+    'mediawiki.Title',
+    'mediawiki.Uri',
+  ])
   // 是否需要刷新缓存
   const noCache = !!(
     mw.util.getParamValue('dev') ||
@@ -23,17 +28,14 @@ async function init() {
   // 等待前置项目
   require('../ssi_modal/ssi-modal.js')
   syncI18nData(noCache)
-  await Promise.all([
-    $.ready,
-    initQueryData(),
-  ])
+  await Promise.all([$.ready, initQueryData()])
 
-  mw.hook('InPageEdit.init.i18n').fire({ _msg: require('../module/_msg')._msg })
+  const { _msg } = require('../module/_msg')
+  mw.hook('InPageEdit.init.i18n').fire({ _msg })
 
   mw.hook('InPageEdit.init.modal').fire({ ssi_modal: window.ssi_modal })
 
   // 导入全部模块
-  const { _msg } = require('../module/_msg')
   const { about } = require('../module/about')
   const api = require('../module/api')
   const { articleLink } = require('../module/articleLink')

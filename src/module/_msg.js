@@ -1,5 +1,10 @@
 const funcName = 'InPageEdit'
-const userLang = mw.config.get('wgUserLanguage')
+const {
+  config: { wgUserLanguage: userLang },
+} = require('./util')
+const map = new mw.Map()
+const i18nCache = localStorage.getItem(`i18n-cache-${funcName}-content`) || '{}'
+const cacheMessages = toObject(i18nCache)
 const fallbacks = {
   ab: 'ru',
   ace: 'id',
@@ -35,6 +40,7 @@ const fallbacks = {
   dsb: 'de',
   dtp: 'ms',
   eml: 'it',
+  en: 'qqx',
   ff: 'fr',
   'fiu-vro': 'vro',
   frc: 'fr',
@@ -174,7 +180,8 @@ const fallbacks = {
  */
 function toObject(data) {
   try {
-    return JSON.parse(data)
+    const json = JSON.parse(data)
+    return typeof json === 'object' ? json : {}
   } catch (e) {
     return {}
   }
@@ -189,13 +196,13 @@ function toObject(data) {
  *
  * @return The resulting message.
  */
-function handleArgs(message, ...args) {
-  args.forEach(function (elem, index) {
-    var rgx = new RegExp('\\$' + (index + 1), 'g')
-    message = message.replace(rgx, elem)
+function handleArgs(message, args) {
+  if (args.length === 0) {
+    return message
+  }
+  return message.replace(/\$(\d+)/g, (m0, m1) => {
+    return args.length < m1 ? m0 : args[m1 - 1]
   })
-
-  return message
 }
 
 /**
@@ -205,28 +212,22 @@ function handleArgs(message, ...args) {
  *     '/wiki/href'.
  * @param text The text and title of the link. If this is not supplied, it
  *     will default to href.
- * @param hasProtocol True if the href parameter already includes the
+ * @param external True if the href parameter already includes the
  *     protocol (i.e. it begins with 'http://', 'https://', or '//').
  *
  * @return The generated link.
  */
-function makeLink(href, text, hasProtocol, blank) {
-  text = text || href
-  href = hasProtocol ? href : mw.util.getUrl(href)
+function makeLink(href, text, external) {
+  text = mw.html.escape(text || href)
+  href = mw.html.escape(external ? href : mw.util.getUrl(href))
+  const blank = external ? ' target="_blank"' : ''
 
-  text = mw.html.escape(text)
-  href = mw.html.escape(href)
-
-  blank = blank ? 'target="_blank"' : ''
-
-  return (
-    '<a href="' + href + '" title="' + text + '"' + blank + '>' + text + '</a>'
-  )
+  return `<a href="${href}" title="${text}"${blank}>${text}</a>`
 }
 
 /*
- * Allow basic inline HTML tags in wikitext.does not support <a> as that's handled by the
- * wikitext links instead.
+ * Allow basic inline HTML tags in wikitext.does not support <a> as that's
+ * handled by the wikitext links instead.
  *
  * Supports the following tags:
  * - <i>
@@ -247,7 +248,7 @@ function makeLink(href, text, hasProtocol, blank) {
  * @return
  */
 function sanitiseHtml(html) {
-  var context = document.implementation.createHTMLDocument(''),
+  const context = document.implementation.createHTMLDocument(''),
     $html = $.parseHTML(html, /* document */ context, /* keepscripts */ false),
     $div = $('<div>', context).append($html),
     whitelistAttrs = ['title', 'style', 'class'],
@@ -265,28 +266,21 @@ function sanitiseHtml(html) {
     ]
 
   $div.find('*').each(function () {
-    var $this = $(this),
+    const $this = $(this),
       tagname = $this.prop('tagName').toLowerCase(),
-      attrs,
-      array,
-      style
+      array = [...$this.prop('attributes')],
+      style = $this.attr('style')
 
     if (!whitelistTags.includes(tagname)) {
-      mw.log('[I18n-js] Disallowed tag in message: ' + tagname)
+      mw.log(`[I18n-js] Disallowed tag in message: ${tagname}`)
       $this.remove()
       return
     }
 
-    attrs = $this.prop('attributes')
-    array = [...attrs]
-
-    array.forEach(function (attr) {
+    array.forEach((attr) => {
       if (!whitelistAttrs.includes(attr.name)) {
         mw.log(
-          '[I18n-js] Disallowed attribute in message: ' +
-            attr.name +
-            ', tag: ' +
-            tagname
+          `[I18n-js] Disallowed attribute in message: ${attr.name}, tag: ${tagname}`
         )
         $this.removeAttr(attr.name)
         return
@@ -294,8 +288,6 @@ function sanitiseHtml(html) {
 
       // make sure there's nothing nasty in style attributes
       if (attr.name === 'style') {
-        style = $this.attr('style')
-
         if (style.includes('url(')) {
           mw.log('[I18n-js] Disallowed url() in style attribute')
           $this.removeAttr('style')
@@ -329,7 +321,7 @@ function sanitiseHtml(html) {
  */
 function parseWikitext(message) {
   // [url text] -> [$1 $2]
-  var urlRgx = /\[((?:https?:)?\/\/.+?) (.+?)\]/g,
+  const urlRgx = /\[((?:https?:)?\/\/.+?) (.+?)\]/g,
     // [[pagename]] -> [[$1]]
     simplePageRgx = /\[\[([^|]*?)\]\]/g,
     // [[pagename|text]] -> [[$1|$2]]
@@ -343,84 +335,74 @@ function parseWikitext(message) {
     message = sanitiseHtml(message)
   }
 
-  return (
-    message
-      .replace(urlRgx, function (_match, href, text) {
-        return makeLink(href, text, true, true)
-      })
-      // .replace(httpRgx, function (_match, before, href, after) {
-      //   return before + makeLink(href, href, true, true) + after;
-      // })
-      .replace(simplePageRgx, function (_match, href) {
-        return makeLink(href)
-      })
-      .replace(pageWithTextRgx, function (_match, href, text) {
-        return makeLink(href, text)
-      })
-      .replace(pluralRgx, function (_match, count, forms) {
-        return mw.language.convertPlural(Number(count), forms.split('|'))
-      })
-      .replace(genderRgx, function (_match, gender, forms) {
-        return mw.language.gender(gender, forms.split('|'))
-      })
-  )
+  return message
+    .replace(urlRgx, (_match, href, text) => {
+      return makeLink(href, text, true)
+    })
+    .replace(simplePageRgx, (_match, href) => {
+      return makeLink(href)
+    })
+    .replace(pageWithTextRgx, (_match, href, text) => {
+      return makeLink(href, text)
+    })
+    .replace(pluralRgx, (_match, count, forms) => {
+      return mw.language.convertPlural(Number(count), forms.split('|'))
+    })
+    .replace(genderRgx, (_match, gender, forms) => {
+      return mw.language.gender(gender, forms.split('|'))
+    })
 }
 
 /**
  * @function parseMessage
- * @param {string} msg
- * @param  {...string} args
+ * @param {string} msgKey
+ * @param  {Array.<string>} args
  */
-function parseMessage(msg, ...args) {
-  msg = handleArgs(msg, ...args)
-  msg = parseWikitext(msg)
-  return msg
+function parseMessage(msgKey, args) {
+  let msg = map.get(msgKey)
+  msg = handleArgs(msg, args)
+  return parseWikitext(msg)
 }
 
 /**
  * @function rawMessage
  */
-function getMessage(lang, msgKey, ...args) {
-  const i18nCache =
-    localStorage.getItem('i18n-cache-' + funcName + '-content') || '{}'
-
+function getMessage(lang, msgKey, args) {
   // qqx
-  if (lang === 'qqx') {
-    var after = ''
+  if (lang === 'qqx' || map.get(msgKey) === 'qqx') {
+    map.set(msgKey, 'qqx')
+    let after = ''
     if (args.length > 0) {
-      after = ': ' + args.join(', ')
+      after = `: ${args.join(', ')}`
     }
     return `(${funcName.toLowerCase()}-${msgKey}${after})`
   }
 
-  // 获取 i18n
-  var cacheMessages = toObject(i18nCache)
+  if (map.exists(msgKey)) {
+    return parseMessage(msgKey, args)
+  }
 
   // 查询本地覆写
-  var ipe = window.InPageEdit || {}
-  var overrides = ipe.i18n || {}
+  const ipe = window.InPageEdit || {}
+  const overrides = ipe.i18n || {}
   // InPageEdit.i18n.lang.msgKey
   if (overrides[lang] && overrides[lang][msgKey]) {
-    return parseMessage(overrides[lang][msgKey], ...args)
-  }
-  // InPageEdit.i18n.msgKey
-  if (overrides[msgKey]) {
-    return parseMessage(overrides[msgKey], ...args)
-  }
-
-  // 查询用户语言
-  if (cacheMessages[lang] && cacheMessages[lang][msgKey]) {
-    return parseMessage(cacheMessages[lang][msgKey], ...args)
+    map.set(msgKey, overrides[lang][msgKey])
+    // InPageEdit.i18n.msgKey
+  } else if (overrides[msgKey]) {
+    map.set(msgKey, overrides[msgKey])
+    // 查询用户语言
+  } else if (cacheMessages[lang] && cacheMessages[lang][msgKey]) {
+    map.set(msgKey, cacheMessages[lang][msgKey])
   }
 
-  // 如果到了这一步，意味着消息不存在
-  if (lang === 'en') {
-    return `(${funcName}-${msgKey})`
+  if (map.exists(msgKey)) {
+    return parseMessage(msgKey, args)
   }
 
   // 转换用户语言后再试，例如 zh => zh-hans, zh-tw => zh-hant
   lang = fallbacks[lang] || 'en'
-  return getMessage(lang, msgKey, ...args)
+  return getMessage(lang, msgKey, args)
 }
 
 /**
@@ -428,8 +410,8 @@ function getMessage(lang, msgKey, ...args) {
  * @param {String} msgKey 消息的键
  * @param  {String} args 替代占位符($1, $2...)的内容，可以解析简单的wikitext
  */
-var _msg = function (msgKey, ...args) {
-  return getMessage(userLang, msgKey, ...args)
+const _msg = (msgKey, ...args) => {
+  return getMessage(userLang, msgKey, args)
 }
 
 module.exports = {
