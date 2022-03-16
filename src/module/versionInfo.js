@@ -1,5 +1,4 @@
 const { _msg } = require('./_msg')
-
 const version = require('./version')
 const { updatelogsUrl, githubLink, aboutUrl } = require('./api')
 
