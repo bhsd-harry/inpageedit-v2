@@ -1,4 +1,4 @@
-const { config } = require('../module/util')
+const userLang = mw.config.get('wgUserLanguage')
 
 // 设置
 const cacheTime = 2 * 60 * 60 * 1000
@@ -13,7 +13,7 @@ const localCacheTime = `i18n-cache-${funcName}-timestamp`
 function syncI18nData(noCache) {
   const now = Date.now()
   // 如果语言为 qqx，不返回任何东西
-  if (config.wgUserLanguage === 'qqx') {
+  if (userLang === 'qqx') {
     console.warn('[InPageEdit] User language is qqx')
     return true
   }

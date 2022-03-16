@@ -1,7 +1,5 @@
 // 导入方法
-const { initQueryData } = require('./initQueryData')
 const { loadStyles } = require('./loadStyles')
-const { updateNotice } = require('./updateNotice')
 const { syncI18nData } = require('./syncI18nData')
 
 const version = require('../module/version')
@@ -13,22 +11,22 @@ const version = require('../module/version')
 async function init() {
   mw.hook('InPageEdit.init.before').fire()
   await mw.loader.using([
-    'mediawiki.jqueryMsg',
     'mediawiki.api',
     'mediawiki.Title',
     'mediawiki.Uri',
   ])
   // 是否需要刷新缓存
-  const noCache = !!(
+  const noCache = Boolean(
     mw.util.getParamValue('dev') ||
     version !== localStorage.getItem('InPageEditVersion')
   )
+  const { initQueryData } = require('./initQueryData')
   // 加载样式表
   loadStyles()
   // 等待前置项目
   require('../../Plugins/lib/ssi_modal/ssi-modal.js')
   syncI18nData(noCache)
-  await Promise.all([$.ready, initQueryData()])
+  await initQueryData()
 
   const { _msg } = require('../module/_msg')
   mw.hook('InPageEdit.init.i18n').fire({ _msg })
@@ -52,10 +50,12 @@ async function init() {
   const { quickRename } = require('../module/quickRename')
   const { specialNotice } = require('../module/specialNotice')
   const { versionInfo } = require('../module/versionInfo')
+  const { updateNotice } = require('./updateNotice')
 
   // 初始化前置模块
   preference.set()
   mw.hook('wikipage.content').add(loadQuickDiff)
+  await $.ready
   articleLink()
   updateNotice()
 

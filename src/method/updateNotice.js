@@ -1,5 +1,4 @@
 const version = require('../module/version')
-
 const { _msg } = require('../module/_msg')
 const { versionInfo } = require('../module/versionInfo')
 const { specialNotice } = require('../module/specialNotice')

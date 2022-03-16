@@ -7,7 +7,7 @@ function _uri(anchor) {
     const uri = new mw.Uri(anchor.href),
       query = uri.query,
       conf = mw.config.values
-    if (uri.host !== conf.wgServerName) {
+    if (uri.host !== location.host && uri.host !== conf.wgServerName) {
       return null
     } else if (query.title) {
       // skip
