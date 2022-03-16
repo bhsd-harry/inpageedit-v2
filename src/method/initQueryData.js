@@ -11,7 +11,7 @@ async function initQueryData() {
   } = await mwApi.get({
     meta: ['userinfo', 'siteinfo'],
     uiprop: ['blockinfo', 'rights'],
-    siprop: 'specialpagealiases',
+    siprop: ['specialpagealiases'],
     formatversion: 2,
   })
   // Blockinfo
