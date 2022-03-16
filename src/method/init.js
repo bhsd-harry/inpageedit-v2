@@ -28,10 +28,10 @@ async function init() {
   syncI18nData(noCache)
   await initQueryData()
 
+  mw.hook('InPageEdit.init.modal').fire({ ssi_modal: window.ssi_modal })
+
   const { _msg } = require('../module/_msg')
   mw.hook('InPageEdit.init.i18n').fire({ _msg })
-
-  mw.hook('InPageEdit.init.modal').fire({ ssi_modal: window.ssi_modal })
 
   // 导入全部模块
   const { about } = require('../module/about')
@@ -58,6 +58,9 @@ async function init() {
   await $.ready
   articleLink()
   updateNotice()
+
+  // !暂定，触发用户插件
+  pluginStore.initUserPlugin()
 
   // 写入模块
   var InPageEdit = {
@@ -106,15 +109,16 @@ async function init() {
 
   // 花里胡哨的加载提示
   console.info(
-    '    ____      ____                   ______    ___ __ \n   /  _/___  / __ \\____ _____ ____  / ____/___/ (_) /_\n   / // __ \\/ /_/ / __ `/ __ `/ _ \\/ __/ / __  / / __/\n _/ // / / / ____/ /_/ / /_/ /  __/ /___/ /_/ / / /_  \n/___/_/ /_/_/    \\__,_/\\__, /\\___/_____/\\__,_/_/\\__/  \n                      /____/                v' +
-      version
+`    ____      ____                   ______    ___ __ 
+   /  _/___  / __ \\____ _____ ____  / ____/___/ (_) /_
+   / // __ \\/ /_/ / __ \`/ __ \`/ _ \\/ __/ / __  / / __/
+ _/ // / / / ____/ /_/ / /_/ /  __/ /___/ /_/ / / /_  
+/___/_/ /_/_/    \\__,_/\\__, /\\___/_____/\\__,_/_/\\__/  
+                      /____/                v${version}`
   )
 
   // 传回InPageEdit
-  $.extend(window.InPageEdit, InPageEdit)
-
-  // !暂定，触发用户插件
-  pluginStore.initUserPlugin()
+  return InPageEdit
 }
 
 module.exports = init
