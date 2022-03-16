@@ -26,7 +26,7 @@ async function init() {
   // 加载样式表
   loadStyles()
   // 等待前置项目
-  require('../ssi_modal/ssi-modal.js')
+  require('../../Plugins/lib/ssi_modal/ssi-modal.js')
   syncI18nData(noCache)
   await Promise.all([$.ready, initQueryData()])
 
