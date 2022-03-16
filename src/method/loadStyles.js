@@ -14,7 +14,7 @@ function loadStyles() {
       $('<link>', { href: link, rel: 'stylesheet', 'data-ipe': 'style' })
     )
   })
-  require('../skin/ipe-default.js')
+  require('../../Plugins/skin/ipe-default.js')
 }
 
 module.exports = {
