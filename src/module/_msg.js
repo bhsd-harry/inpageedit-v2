@@ -383,8 +383,7 @@ function getMessage(lang, msgKey, args) {
   }
 
   // 查询本地覆写
-  const ipe = window.InPageEdit || {}
-  const overrides = ipe.i18n || {}
+  const overrides = window.InPageEdit.i18n || {}
   // InPageEdit.i18n.lang.msgKey
   if (overrides[lang] && overrides[lang][msgKey]) {
     map.set(msgKey, overrides[lang][msgKey])

@@ -1,5 +1,5 @@
-// const { _msg } = require('./_msg');
 const { pluginCDN } = require('./api')
+const ipe = window.InPageEdit
 
 /**
  * @module pluginStore 加载InPageEdit插件
@@ -17,13 +17,9 @@ const pluginStore = {
     })
   },
   saveCache(data) {
-    const ipe = window.InPageEdit || {}
-    ipe.cache = ipe.cache || {}
-    ipe.cache.pluginList = data
-    window.InPageEdit = ipe
+    ipe.cache = $.extend(ipe.cache, { pluginList: data })
   },
   loadCache() {
-    const ipe = window.InPageEdit || {}
     ipe.cache = ipe.cache || {}
     return ipe.cache.pluginList
   },
@@ -33,7 +29,10 @@ const pluginStore = {
    */
   load(name) {
     if (/^https?:\/\//.test(name)) {
-      mw.loader.load(name)
+      mw.loader.load(
+        name,
+        `text/${name.endsWith('.css') ? 'css' : 'javascript'}`
+      )
       console.info('[InPageEdit] 从远程加载非官方插件', name)
     } else {
       require(`../plugins/${name}`)
