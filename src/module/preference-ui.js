@@ -150,14 +150,14 @@ const $tabContent = $('<div>', {
       $('<h4>', { text: 'Portal' }),
       $('<button>', {
         class: 'btn btn-secondary btn-single',
-        onclick: 'InPageEdit.about()',
         text: _msg('preference-aboutAndHelp'),
-      }),
+      }).click(window.InPageEdit.about),
       $('<button>', {
         class: 'btn btn-secondary btn-single',
-        onclick: 'InPageEdit.versionInfo()',
         text: _msg('preference-updatelog'),
-      }).css('margin-top', '0.5em'),
+      })
+        .css('margin-top', '0.5em')
+        .click(window.InPageEdit.versionInfo),
       $('<h4>', { text: 'Join us' }),
       $('<p>').append(
         $('<strong>', { text: 'GitHub' }),

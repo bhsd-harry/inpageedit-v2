@@ -1,5 +1,4 @@
-var mwApi = new mw.Api()
-var config = mw.config.get()
+const { mwApi, config } = require('./util')
 const { _msg } = require('./_msg')
 const { _hasRight } = require('./_hasRight')
 const { $br } = require('./_elements')
@@ -8,10 +7,10 @@ const { $br } = require('./_elements')
  * @module quickDelete 删除页面模块
  * @param {String} page
  */
-var quickDelete = function (page, givenReason = '') {
+const quickDelete = (page, givenReason = '') => {
   mw.hook('InPageEdit.quickDelete').fire()
   console.log('Quick delete', page, givenReason)
-  var reason
+  let reason
   page = page || config.wgPageName
 
   ssi_modal.show({
@@ -23,19 +22,21 @@ var quickDelete = function (page, givenReason = '') {
     content: $('<div>').append(
       $('<section>', { id: 'InPageEditDeletepage' }).append(
         $('<span>', {
-          html: _msg('delete-reason', '<b>' + page.replace(/_/g, ' ') + '</b>'),
+          html: _msg('delete-reason', `<b>${page.replace(/_/g, ' ')}</b>`),
         }),
         $br,
         $('<label>', { for: 'delete-reason', text: _msg('editSummary') }),
         $('<input>', {
           id: 'delete-reason',
-          style: 'width:96%',
-          onclick: "$(this).css('box-shadow', '')",
           value: givenReason,
         })
+          .css('width', '90%')
+          .focus(function () {
+            $(this).css('box-shadow', '')
+          })
       )
     ),
-    beforeShow: function () {
+    beforeShow() {
       if (!_hasRight('delete')) {
         ssi_modal.dialog({
           title: _msg('notify-no-right'),
@@ -53,14 +54,14 @@ var quickDelete = function (page, givenReason = '') {
       {
         label: _msg('cancel'),
         className: 'btn btn-primary',
-        method: function (e, modal) {
+        method(e, modal) {
           modal.close()
         },
       },
       {
         label: _msg('confirm'),
         className: 'btn btn-danger',
-        method: function (e, modal) {
+        method(e, modal) {
           reason = $('#InPageEditDeletepage #delete-reason').val()
           if (reason === '') {
             $('#InPageEditDeletepage #delete-reason').css(
@@ -85,36 +86,36 @@ var quickDelete = function (page, givenReason = '') {
                 className: 'btn',
               },
             },
-            function (result) {
+            (result) => {
               if (result) {
-                reason = _msg('delete-title') + ' (' + reason + ')'
+                reason = `${_msg('delete-title')} (${reason})`
                 mwApi
                   .postWithToken('csrf', {
                     action: 'delete',
                     title: page,
-                    reason: reason,
-                    format: 'json',
+                    reason,
+                    formatversion: 2,
+                    errorformat: 'plaintext',
                   })
-                  .then(() => {
-                    ssi_modal.notify('success', {
-                      className: 'in-page-edit',
-                      title: _msg('notify-success'),
-                      content: _msg('notify-delete-success', page),
-                    })
-                  })
-                  .fail(function (errorCode, feedback, errorThrown) {
-                    ssi_modal.notify('error', {
-                      className: 'in-page-edit',
-                      title: _msg('notify-error'),
-                      content:
-                        _msg('notify-delete-error') +
-                        ': <br/><span style="font-size:amall">' +
-                        errorThrown.error['*'] +
-                        '(<code>' +
-                        errorThrown.error['code'] +
-                        '</code>)</span>',
-                    })
-                  })
+                  .then(
+                    () => {
+                      ssi_modal.notify('success', {
+                        className: 'in-page-edit',
+                        title: _msg('notify-success'),
+                        content: _msg('notify-delete-success', page),
+                      })
+                    },
+                    (code, { errors: [{ text }] }) => {
+                      ssi_modal.notify('error', {
+                        className: 'in-page-edit',
+                        title: _msg('notify-error'),
+                        content: `${_msg(
+                          'notify-delete-error'
+                          // eslint-disable-next-line max-len
+                        )}: <br><span style="font-size:amall">${text}(<code>${code}</code>)</span>`,
+                      })
+                    }
+                  )
                 modal.close()
               } else {
                 return false
