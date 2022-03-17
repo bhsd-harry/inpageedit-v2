@@ -1,9 +1,6 @@
-var mwApi = new mw.Api()
-var config = mw.config.get()
-
+const { mwApi, config } = require('./util')
 const { _msg } = require('./_msg')
 const { $br, $progress } = require('./_elements')
-
 const { _resolveExists } = require('./_resolveExists')
 const { preference } = require('./preference')
 
