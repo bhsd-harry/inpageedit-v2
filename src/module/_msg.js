@@ -3,8 +3,7 @@ const {
   config: { wgUserLanguage: userLang },
 } = require('./util')
 const map = new mw.Map()
-const i18nCache = localStorage.getItem(`i18n-cache-${funcName}-content`) || '{}'
-const cacheMessages = toObject(i18nCache)
+const cacheMessages = getObject(`i18n-cache-${funcName}-content`)
 const fallbacks = {
   ab: 'ru',
   ace: 'id',
@@ -175,10 +174,11 @@ const fallbacks = {
 }
 
 /**
- * @function toObject
- * @param {String} data
+ * @function getObject
+ * @param {String} storage key
  */
-function toObject(data) {
+function getObject(key) {
+  const data = localStorage.getItem(key) || '{}'
   try {
     const json = JSON.parse(data)
     return typeof json === 'object' ? json : {}
@@ -280,6 +280,7 @@ function sanitiseHtml(html) {
     array.forEach((attr) => {
       if (!whitelistAttrs.includes(attr.name)) {
         mw.log(
+          // eslint-disable-next-line max-len
           `[I18n-js] Disallowed attribute in message: ${attr.name}, tag: ${tagname}`
         )
         $this.removeAttr(attr.name)
@@ -415,4 +416,5 @@ const _msg = (msgKey, ...args) => {
 
 module.exports = {
   _msg,
+  getObject,
 }
