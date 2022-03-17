@@ -35,7 +35,7 @@ const pluginStore = {
       )
       console.info('[InPageEdit] 从远程加载非官方插件', name)
     } else {
-      require(`../plugins/${name}`)
+      require(`../../Plugins/plugins/${name}`)
       console.info('[InPageEdit] 从本地加载插件', name)
     }
   },
