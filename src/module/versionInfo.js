@@ -1,6 +1,7 @@
 const { _msg } = require('./_msg')
 const version = require('./version')
 const { updatelogsUrl, githubLink, aboutUrl } = require('./api')
+const { $iframe } = require('./elements')
 
 /**
  * @module versionInfo 版本信息模块
@@ -13,17 +14,7 @@ const versionInfo = () => {
     title: `${_msg(
       'updatelog-title'
     )} - <span id="yourVersion">${version}</span>`,
-    content: $('<section>').append(
-      $('<iframe>', {
-        src: updatelogsUrl,
-      }).css({
-        margin: 0,
-        padding: 0,
-        width: '100%',
-        height: '80vh',
-        border: 0,
-      })
-    ),
+    content: $iframe(updatelogsUrl),
     buttons: [
       {
         label: 'GitHub',

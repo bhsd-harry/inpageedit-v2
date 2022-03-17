@@ -1,5 +1,5 @@
 const { _msg } = require('./_msg')
-
+const { $iframe } = require('./_elements')
 const { aboutUrl } = require('./api')
 
 /**
@@ -10,17 +10,7 @@ const about = () => {
   ssi_modal.show({
     title: _msg('preference-about-label'),
     className: 'in-page-edit in-page-edit-about',
-    content: $('<section>').append(
-      $('<iframe>', {
-        src: aboutUrl,
-      }).css({
-        margin: 0,
-        padding: 0,
-        width: '100%',
-        height: '80vh',
-        border: 0,
-      })
-    ),
+    content: $iframe(aboutUrl),
   })
 }
 

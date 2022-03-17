@@ -23,6 +23,16 @@ const $link = ({ page, link, href, text, html }) => {
 const $progress =
   // eslint-disable-next-line max-len
   '<div class="ipe-progress" style="width:100%"><div class="ipe-progress-bar"></div></div>'
+const $iframe = (src) =>
+  $('<section>').append(
+    $('<iframe>', { src }).css({
+      margin: 0,
+      padding: 0,
+      width: '100%',
+      height: '80vh',
+      border: 0,
+    })
+  )
 
 module.exports = {
   $br,
@@ -32,4 +42,5 @@ module.exports = {
   $link,
   $progress,
   progress: $progress,
+  $iframe,
 }
