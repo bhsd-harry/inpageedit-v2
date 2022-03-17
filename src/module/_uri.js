@@ -1,3 +1,6 @@
+const { config } = require('./util'),
+  { wgServerName, wgScript, wgArticlePath } = config
+
 function _uri(anchor) {
   const href = anchor.getAttribute('href')
   if (href === null || href.startsWith('#')) {
@@ -5,25 +8,18 @@ function _uri(anchor) {
   }
   try {
     const uri = new mw.Uri(anchor.href),
-      query = uri.query,
-      conf = mw.config.values
-    if (uri.host !== location.host && uri.host !== conf.wgServerName) {
+      { query } = uri
+    if (uri.host !== location.host && uri.host !== wgServerName) {
       return null
     } else if (query.title) {
       // skip
-    } else if (uri.path.startsWith(conf.wgScript + '/')) {
-      query.title = uri.path.slice(conf.wgScript.length + 1) || undefined
-    } else {
-      const articlePath = new RegExp(
-          '^' + conf.wgArticlePath.replace('$1', '(.+)') + '$'
-        ),
-        article = uri.path.match(articlePath)
-      if (article) {
-        query.title = decodeURIComponent(article[1])
-      }
+    } else if (uri.path.startsWith(`${wgScript}/`)) {
+      query.title = decodeURIComponent(uri.path.slice(wgScript.length + 1))
+    } else if (uri.path.startsWith(wgArticlePath.slice(0, -2))) {
+      query.title = decodeURIComponent(uri.path.slice(wgArticlePath.length - 2))
     }
     return query
-  } catch {
+  } catch (e) {
     return null
   }
 }

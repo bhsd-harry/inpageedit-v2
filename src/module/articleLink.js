@@ -1,4 +1,4 @@
-var config = mw.config.get()
+const { config } = require('./util')
 const { _msg } = require('./_msg')
 
 const { preference } = require('./preference')
