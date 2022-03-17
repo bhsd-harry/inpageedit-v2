@@ -1,7 +1,7 @@
 const { _msg } = require('./_msg')
 const version = require('./version')
 const { updatelogsUrl, githubLink, aboutUrl } = require('./api')
-const { $iframe } = require('./elements')
+const { $iframe } = require('./_elements')
 
 /**
  * @module versionInfo 版本信息模块
