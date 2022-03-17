@@ -23,6 +23,16 @@ const $link = ({ page, link, href, text, html }) => {
 const $progress =
   // eslint-disable-next-line max-len
   '<div class="ipe-progress" style="width:100%"><div class="ipe-progress-bar"></div></div>'
+const $checkbox = ({ label, checked, id, className }) =>
+  $('<label>', { class: className }).append(
+    $('<input>', { type: 'checkbox', checked, id }),
+    $('<span>', { html: label })
+  )
+const $radio = ({ label, value, name, className }) =>
+  $('<label>', { class: className }).append(
+    $('<input>', { type: 'radio', value, name }),
+    $('<span>', { html: label })
+  )
 const $iframe = (src) =>
   $('<section>').append(
     $('<iframe>', { src }).css({
@@ -42,5 +52,7 @@ module.exports = {
   $link,
   $progress,
   progress: $progress,
+  $checkbox,
+  $radio,
   $iframe,
 }
