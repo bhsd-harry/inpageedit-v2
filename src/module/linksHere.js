@@ -2,10 +2,8 @@
  * @module linksHere
  */
 
-// const { quickEdit } = require('./quickEdit')
 const { $progress, $link } = require('./_elements')
 const { _msg } = require('./_msg')
-
 const { mwApi, config } = require('./util')
 
 /**
@@ -21,38 +19,35 @@ const isFile = (title) => {
  * @param {Sting} title
  */
 const getList = (title) => {
-  var opt = {
-    prop: isFile(title) ? 'fileusage' : 'linkshere',
-    titles: title,
-    formatversion: 2,
-  }
-  if (isFile(title)) {
-    opt.fulimit = 'max'
-  } else {
-    opt.lhlimit = 'max'
-  }
+  const opt = $.extend(
+    {
+      titles: title,
+      formatversion: 2,
+    },
+    isFile(title)
+      ? { prop: 'fileusage', fulimit: 'max' }
+      : { prop: 'linkshere', lhlimit: 'max' }
+  )
   return mwApi.get(opt)
 }
 
 /**
  * @function makeList
- * @param {Object} list
+ * @param {Array} list
  */
 const makeList = (list) => {
-  var $list = $('<ol>', { class: 'ipe-links-here-list' })
-  $.each(list, (index, { title, redirect }) => {
-    $list.append(
-      $('<li>').append(
+  const $list = $('<ol>', { class: 'ipe-links-here-list' })
+  list.forEach(({ title, redirect }) => {
+    $('<li>')
+      .append(
         $link({ page: title }).attr('target', '_blank'),
-        redirect !== undefined
-          ? ' (<i>' + _msg('links-here-isRedirect') + '</i>)'
-          : '',
+        redirect ? `(<i>${_msg('links-here-isRedirect')}</i>)` : '',
         ' (',
-        $link({ text: '← ' + _msg('links-here') }).click(function () {
+        $link({ text: `← ${_msg('links-here')}` }).click(() => {
           linksHere(title)
         }),
         ' | ',
-        $link({ text: _msg('quick-edit') }).click(function () {
+        $link({ text: _msg('quick-edit') }).click(() => {
           require('./quickEdit').quickEdit({
             page: title,
             reload: false,
@@ -60,7 +55,7 @@ const makeList = (list) => {
         }),
         ')'
       )
-    )
+      .appendTo($list)
   })
   return $list
 }
@@ -69,53 +64,44 @@ const makeList = (list) => {
  * @module linksHere
  * @param {string} title page title
  */
-async function linksHere(title = config.wgPageName) {
+async function linksHere(title) {
   if (!title || typeof title !== 'string') {
     title = config.wgPageName
   }
 
   // 构建内容
-  var $progressBar = $($progress)
-  var $content = $('<div>').append($progressBar)
+  const $progressBar = $($progress)
+  const $content = $('<div>').append($progressBar)
 
   // 构建模态框
-  var modal = ssi_modal
-    .createObject({
-      className: 'in-page-edit ipe-links-here',
-      center: true,
-      sizeClass: 'dialog',
-      onShow(modal) {
-        mw.hook('InPageEdit.linksHere').fire({
-          modal,
-          $modal: $(document.getElementById(modal.modalId)),
-        })
-      },
-    })
-    .init()
-
-  // 设定模态框
-  modal.setTitle(_msg('links-here-title', title, 2))
-  modal.setContent($content)
-
-  // 显示模态框
-  modal.show()
+  const modalObj = ssi_modal.show({
+    className: 'in-page-edit ipe-links-here',
+    center: true,
+    sizeClass: 'dialog',
+    title: _msg('links-here-title', title, 2),
+    content: $content,
+    onShow(modal) {
+      mw.hook('InPageEdit.linksHere').fire({
+        modal,
+        $modal: modal.get$modal,
+      })
+    },
+  })
 
   // 异步操作
   try {
     console.info('[InPageEdit] linksHere', '开始获取页面信息')
-    const { query: { pages: [page] } } = await getList(title)
+    const {
+      query: {
+        pages: [page],
+      },
+    } = await getList(title)
     console.info('[InPageEdit] linksHere', '成功获取页面信息')
-    var pageList = []
-    // 判定为文件还是一般页面
-    if (isFile(title)) {
-      pageList = page.fileusage || []
-    } else {
-      pageList = page.linkshere || []
-    }
+    const pageList = page.fileusage || page.linkshere || []
     $progressBar.hide()
     // 如果存在页面，则插入列表，否则显示提示
     if (pageList.length > 0) {
-      var $list = makeList(pageList)
+      const $list = makeList(pageList)
       $content.append($list)
     } else {
       $content.append(
@@ -127,7 +113,7 @@ async function linksHere(title = config.wgPageName) {
     }
     // 配置西文单数名词
     if (pageList.length < 2) {
-      modal.setTitle(_msg('links-here-title', title, 1))
+      modalObj.setTitle(_msg('links-here-title', title, 1))
     }
     if (page.missing) {
       $content.append(
