@@ -7,7 +7,7 @@ const { mwApi } = require('./util')
  * @module quickPreview 快速预览文章页
  * @param params {Object}
  */
-const quickPreview = (params, modalSize = 'large', center = false) => {
+const quickPreview = function (params, modalSize = 'large', center = false) {
   const defaultOptions = {
     action: 'parse',
     preview: true,
@@ -21,12 +21,11 @@ const quickPreview = (params, modalSize = 'large', center = false) => {
   console.time('[InPageEdit] Request preview')
   ssi_modal.show({
     outSideClose: preference.get('outSideClose'),
-    sizeClass:
-      /dialog|small|smallToMedium|medium|mediumToLarge|large|full|auto/.test(
-        modalSize
-      )
-        ? modalSize
-        : 'large',
+    sizeClass: (
+      /dialog|small|smallToMedium|medium|mediumToLarge|large|full|auto/
+    ).test(modalSize)
+      ? modalSize
+      : 'large',
     center: Boolean(center),
     className: 'in-page-edit previewbox',
     title: _msg('preview-title'),
@@ -34,8 +33,9 @@ const quickPreview = (params, modalSize = 'large', center = false) => {
       $progress,
       $('<div>', {
         class: 'InPageEditPreview',
+        style: 'display:none',
         text: _msg('preview-placeholder'),
-      }).hide()
+      })
     ),
     fixedHeight: true,
     fitScreen: true,
@@ -46,21 +46,23 @@ const quickPreview = (params, modalSize = 'large', center = false) => {
         $('.previewbox .ipe-progress').parent().height() / 2
       )
       $('.previewbox .hideThisBtn').hide()
-      mwApi.post(options).then(
-        ({ parse }) => {
+      mwApi
+        .post(options)
+        .then(function (data) {
           console.timeEnd('[InPageEdit] Request preview')
-          const content = parse.text,
+          const content = data.parse.text,
             $content = $(document.getElementById(modal.modalId))
           $content.find('.ipe-progress').hide(150)
-          $content.find(`.InPageEditPreview`).fadeIn(500).html(content)
-        },
-        () => {
+          $content.find(`.InPageEditPreview`)
+            .fadeIn(500)
+            .html(content)
+        })
+        .fail(function () {
           console.timeEnd('[InPageEdit] Request preview')
           console.warn('[InPageEdit] 预览失败')
           const $content = $(document.getElementById(modal.modalId))
           $content.find('.ipe-progress').hide(150)
-          $content
-            .find(`.InPageEditPreview`)
+          $content.find(`.InPageEditPreview`)
             .fadeIn(500)
             .html(_msg('preview-error'))
         }

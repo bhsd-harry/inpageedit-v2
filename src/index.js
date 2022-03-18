@@ -7,8 +7,7 @@
  * @url https://github.com/Dragon-Fish/InPageEdit-v2
  */
 
-// eslint-disable-next-line no-extra-semi
-;(async () => {
+;(async function () {
   // 创建 InPageEdit 变量
   window.InPageEdit = window.InPageEdit || {}
 

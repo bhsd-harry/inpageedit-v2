@@ -21,13 +21,17 @@ const $link = ({ page, link, href, text, html }) => {
   return $('<a>', { href, target, html })
 }
 const $progress =
-  // eslint-disable-next-line max-len
-  '<div class="ipe-progress" style="width:100%"><div class="ipe-progress-bar"></div></div>'
-const $checkbox = ({ label, checked, id, className }) =>
-  $('<label>', { class: className }).append(
-    $('<input>', { type: 'checkbox', checked, id }),
-    $('<span>', { html: label })
-  )
+  '<div class="ipe-progress" style="width: 100%"><div class="ipe-progress-bar"></div></div>'
+const $checkbox = ({ label, checked, id, className }) => {
+  return $('<label>', { class: className })
+    .append(
+      $('<input>', { type: 'checkbox', checked, id }),
+      $('<span>', { html: label })
+    )
+    .css({
+      display: 'block',
+    })
+}
 const $radio = ({ label, value, name, className }) =>
   $('<label>', { class: className }).append(
     $('<input>', { type: 'radio', value, name }),

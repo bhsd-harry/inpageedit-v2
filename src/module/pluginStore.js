@@ -10,14 +10,15 @@ const pluginStore = {
    */
   get() {
     return $.ajax({
-      url: `${pluginCDN}/index.json`,
+      url: pluginCDN + '/index.json',
       dataType: 'json',
       crossDomain: true,
       cache: false,
     })
   },
   saveCache(data) {
-    ipe.cache = $.extend(ipe.cache, { pluginList: data })
+    ipe.cache = ipe.cache || {}
+    ipe.cache.pluginList = data
   },
   loadCache() {
     ipe.cache = ipe.cache || {}

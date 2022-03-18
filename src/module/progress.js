@@ -1,5 +1,6 @@
 const { _msg } = require('./_msg')
-const { $progress } = require('./_elements')
+
+const { $progress } = require('./_elements.js')
 
 /**
  * @module progress 载入中模块
@@ -10,7 +11,7 @@ const { $progress } = require('./_elements')
  * - false: Close top progress box
  * - String: Show new progress box with title
  */
-const progress = (title) => {
+const progress = function (title) {
   const $loadingbox = $('.in-page-edit.loadingbox')
   if (title === true) {
     $loadingbox.find('.ssi-modalTitle').html(_msg('done'))
@@ -23,7 +24,9 @@ const progress = (title) => {
     if ($loadingbox.length > 0) {
       return
     }
-    title = title === undefined ? 'Loading...' : title
+    if (title === undefined) {
+      title = 'Loading...'
+    }
     ssi_modal.show({
       title,
       content: $progress,

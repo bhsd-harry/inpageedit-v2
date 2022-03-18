@@ -3,7 +3,7 @@ const { _msg } = require('./_msg')
 /**
  * @module specialNotice 特别通知
  */
-const specialNotice = () => {
+const specialNotice = function () {
   ssi_modal.notify(
     'dialog',
     {
@@ -15,7 +15,7 @@ const specialNotice = () => {
         className: 'btn btn-primary',
       },
     },
-    (e, modal) => {
+    function (e, modal) {
       localStorage.setItem('InPageEditNoticeId', _msg('noticeid'))
       modal.close()
     }

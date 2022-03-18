@@ -19,15 +19,16 @@ const isFile = (title) => {
  * @param {Sting} title
  */
 const getList = (title) => {
-  const opt = $.extend(
-    {
-      titles: title,
-      formatversion: 2,
-    },
-    isFile(title)
-      ? { prop: 'fileusage', fulimit: 'max' }
-      : { prop: 'linkshere', lhlimit: 'max' }
-  )
+  const opt = {
+    prop: isFile(title) ? 'fileusage' : 'linkshere',
+    titles: title,
+    formatversion: 2,
+  }
+  if (isFile(title)) {
+    opt.fulimit = 'max'
+  } else {
+    opt.lhlimit = 'max'
+  }
   return mwApi.get(opt)
 }
 
@@ -38,16 +39,18 @@ const getList = (title) => {
 const makeList = (list) => {
   const $list = $('<ol>', { class: 'ipe-links-here-list' })
   list.forEach(({ title, redirect }) => {
-    $('<li>')
-      .append(
+    $list.append(
+      $('<li>').append(
         $link({ page: title }).attr('target', '_blank'),
-        redirect ? `(<i>${_msg('links-here-isRedirect')}</i>)` : '',
+        redirect !== undefined
+          ? ' (<i>' + _msg('links-here-isRedirect') + '</i>)'
+          : '',
         ' (',
-        $link({ text: `← ${_msg('links-here')}` }).click(() => {
+        $link({ text: '← ' + _msg('links-here') }).on('click', function () {
           linksHere(title)
         }),
         ' | ',
-        $link({ text: _msg('quick-edit') }).click(() => {
+        $link({ text: _msg('quick-edit') }).on('click', function () {
           require('./quickEdit').quickEdit({
             page: title,
             reload: false,
@@ -55,7 +58,7 @@ const makeList = (list) => {
         }),
         ')'
       )
-      .appendTo($list)
+    )
   })
   return $list
 }
@@ -74,30 +77,35 @@ async function linksHere(title) {
   const $content = $('<div>').append($progressBar)
 
   // 构建模态框
-  const modalObj = ssi_modal.show({
-    className: 'in-page-edit ipe-links-here',
-    center: true,
-    sizeClass: 'dialog',
-    title: _msg('links-here-title', title, 2),
-    content: $content,
-    onShow(modal) {
-      mw.hook('InPageEdit.linksHere').fire({
-        modal,
-        $modal: modal.get$modal,
-      })
-    },
-  })
+  const modalObj = ssi_modal
+    .show({
+      className: 'in-page-edit ipe-links-here',
+      center: true,
+      sizeClass: 'dialog',
+      title: _msg('links-here-title', title, 2),
+      content: $content,
+      onShow(modal) {
+        mw.hook('InPageEdit.linksHere').fire({
+          modal,
+          $modal: modal.get$modal,
+        })
+      },
+    })
 
   // 异步操作
   try {
     console.info('[InPageEdit] linksHere', '开始获取页面信息')
-    const {
-      query: {
-        pages: [page],
-      },
-    } = await getList(title)
+    const data = await getList(title)
+    const { pages } = data.query
+    const [page] = pages
     console.info('[InPageEdit] linksHere', '成功获取页面信息')
-    const pageList = page.fileusage || page.linkshere || []
+    let pageList = []
+    // 判定为文件还是一般页面
+    if (isFile(title)) {
+      pageList = page.fileusage || []
+    } else {
+      pageList = page.linkshere || []
+    }
     $progressBar.hide()
     // 如果存在页面，则插入列表，否则显示提示
     if (pageList.length > 0) {
