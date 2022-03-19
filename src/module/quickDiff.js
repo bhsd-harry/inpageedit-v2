@@ -1,35 +1,26 @@
-var mwApi = new mw.Api()
-var config = mw.config.get()
-
+const { mwApi } = require('./util')
 const { _msg } = require('./_msg')
 const { preference } = require('./preference')
-
 const { $br, $progress } = require('./_elements')
+const { _error } = require('./_error')
 
 /**
  * @module quickDiff 快速页面差异模块
  * @param {Object} param standard MediaWiki API params
  */
-var quickDiff = function (param) {
+const quickDiff = function (param) {
   mw.hook('InPageEdit.quickDiff').fire()
-  if ($('[href*="mediawiki.diff.styles"]').length < 1) {
-    mw.loader.load(
-      `${mw.util.wikiScript('load')}?${new URLSearchParams({
-        modules: 'mediawiki.legacy.shared|mediawiki.diff.styles',
-        only: 'styles',
-      })}`,
-      'text/css'
-    )
-  }
-  var $modalTitle, $diffArea, $loading
-  if ($('.quick-diff').length > 0) {
+  mw.loader.load(['mediawiki.legacy.shared', 'mediawiki.diff.styles'])
+  let $modalTitle, $diffArea, $loading
+  const $quickDiff = $('.quick-diff')
+  if ($quickDiff.length > 0) {
     console.info('[InPageEdit] Quick diff 正在加载新内容')
-    $modalTitle = $('.quick-diff .pageName')
-    $diffArea = $('.quick-diff .diffArea')
-    $loading = $('.quick-diff .ipe-progress')
+    $modalTitle = $quickDiff.find('.pageName')
+    $diffArea = $quickDiff.find('.diffArea')
+    $loading = $quickDiff.find('.ipe-progress')
     $modalTitle.text(_msg('diff-loading'))
     $diffArea.hide()
-    $('.quick-diff').appendTo('body')
+    $quickDiff.appendTo(document.body)
   } else {
     $modalTitle = $('<span>', { class: 'pageName', text: _msg('diff-loading') })
     $diffArea = $('<div>', { class: 'diffArea', style: 'display: none' })
@@ -53,11 +44,12 @@ var quickDiff = function (param) {
   }
   $loading
     .show()
-    .css('margin-top', $('.quick-diff .ssi-modalContent').height() / 2)
-  $('.quick-diff .toDiffPage').off()
+    .css('margin-top', $quickDiff.find('.ssi-modalContent').height() / 2)
+  $quickDiff.find('.toDiffPage').off('click')
   param.action = 'compare'
   param.prop = 'diff|diffsize|rel|ids|title|user|comment|parsedcomment|size'
-  param.format = 'json'
+  param.formatversion = 2
+  param.errorformat = 'html'
   if (param.totext) {
     param.topst = true
   } else if (param.fromtext) {
@@ -65,12 +57,12 @@ var quickDiff = function (param) {
   }
   mwApi
     .post(param)
-    .done(function (data) {
-      var diffTable = data.compare['*']
-      var toTitle
+    .done(function ({ compare, warnings }) {
+      const diffTable = compare.body
+      let toTitle
       $loading.hide()
       if (param.pageName === undefined) {
-        toTitle = data.compare.totitle
+        toTitle = compare.totitle
       } else {
         toTitle = param.pageName
       }
@@ -98,7 +90,7 @@ var quickDiff = function (param) {
       $modalTitle.html(_msg('diff-title') + ': <u>' + toTitle + '</u>')
       $diffArea
         .show()
-        .html('')
+        .empty()
         .append(
           $('<table>', { class: 'diff difftable' }).append(
             $('<colgroup>').append(
@@ -111,91 +103,89 @@ var quickDiff = function (param) {
               $('<tr>').append(
                 $('<td>', { colspan: 2, class: 'diff-otitle' }).append(
                   $('<a>', {
-                    href: config.wgScript + '?oldid=' + data.compare.fromrevid,
-                    text: data.compare.fromtitle,
+                    href: mw.util.getUrl('', { oldid: compare.fromrevid }),
+                    text: compare.fromtitle,
                   }),
                   ' (',
                   $('<span>', {
                     class: 'diff-version',
-                    text: _msg('diff-version') + data.compare.fromrevid,
+                    text: _msg('diff-version') + compare.fromrevid,
                   }),
                   ') (',
                   $('<a>', {
                     class: 'editLink',
-                    href:
-                      config.wgScript +
-                      '?action=edit&title=' +
-                      data.compare.fromtitle +
-                      '&oldid=' +
-                      data.compare.fromrevid,
+                    href: mw.util.getUrl(compare.fromtitle, {
+                      action: 'edit',
+                      oldid: compare.fromrevid,
+                    }),
                     text: _msg('diff-edit'),
                   }),
                   ')',
                   $br,
-                  userLink(data.compare.fromuser),
+                  userLink(compare.fromuser),
                   $br,
                   ' (',
                   $('<span>', {
                     class: 'diff-comment',
-                    html: data.compare.fromparsedcomment,
+                    html: compare.fromparsedcomment,
                   }),
                   ') ',
                   $br,
                   $('<a>', {
                     class: 'prevVersion',
-                    href: 'javascript:void(0);',
+                    href: '#',
                     text: '←' + _msg('diff-prev'),
                   })
-                    .toggle(!!data.compare.prev)
-                    .on('click', () => {
+                    .toggle(Boolean(compare.prev))
+                    .on('click', (e) => {
+                      e.preventDefault()
                       quickDiff({
-                        fromrev: data.compare.prev,
-                        torev: data.compare.fromrevid,
+                        fromrev: compare.prev,
+                        torev: compare.fromrevid,
                       })
                     })
                 ),
                 $('<td>', { colspan: 2, class: 'diff-ntitle' }).append(
                   $('<a>', {
-                    href: config.wgScript + '?oldid=' + data.compare.torevid,
-                    text: data.compare.totitle,
+                    href: mw.util.getUrl('', { oldid: compare.torevid }),
+                    text: compare.totitle,
                   }),
                   ' (',
                   $('<span>', {
                     class: 'diff-version',
-                    text: _msg('diff-version') + data.compare.torevid,
+                    text: _msg('diff-version') + compare.torevid,
                   }),
                   ') (',
                   $('<a>', {
                     class: 'editLink',
-                    href:
-                      config.wgScript +
-                      '?action=edit&title=' +
-                      data.compare.totitle +
-                      '&oldid=' +
-                      data.compare.torevid,
+                    href: mw.util.getUrl(compare.totitle, {
+                      action: 'edit',
+                      oldid: compare.torevid,
+                    }),
                     text: _msg('diff-edit'),
                   }),
                   ')',
                   $br,
-                  userLink(data.compare.touser),
+                  userLink(compare.touser),
                   $br,
                   ' (',
                   $('<span>', {
                     class: 'diff-comment',
-                    html: data.compare.toparsedcomment,
+                    html: compare.toparsedcomment,
                   }),
                   ') ',
                   $br,
                   $('<a>', {
                     class: 'nextVersion',
-                    href: 'javascript:void(0);',
+                    href: '#',
                     text: _msg('diff-nextv') + '→',
                   })
-                    .toggle(!!data.compare.next)
-                    .on('click', () => {
+                    .toggle(Boolean(compare.next))
+                    .on('click', (e) => {
+                      e.preventDefault()
                       quickDiff({
-                        fromrev: data.compare.torevid,
-                        torev: data.compare.next,
+                        fromrev: compare.torevid,
+                        torev: compare.next,
                       })
                     })
                 )
@@ -207,27 +197,25 @@ var quickDiff = function (param) {
               }).append(
                 $('<td>', {
                   colspan: '2',
-                  text: data.compare.fromsize + _msg('diff-bytes'),
+                  text: compare.fromsize + _msg('diff-bytes'),
                 }),
                 $('<td>', {
                   colspan: '2',
-                  text: data.compare.tosize + _msg('diff-bytes'),
+                  text: compare.tosize + _msg('diff-bytes'),
                 })
               )
             )
           )
         )
-      $('.quick-diff button.toDiffPage').on('click', function () {
-        location.href =
-          config.wgScript +
-          '?oldid=' +
-          data.compare.fromrevid +
-          '&diff=' +
-          data.compare.torevid
+      $quickDiff.find('button.toDiffPage').on('click', function () {
+        location.href = mw.util.getUrl('', {
+          oldid: compare.fromrevid,
+          diff: compare.torevid,
+        })
       })
-      require('./articleLink').articleLink($('.quick-diff .editLink'))
+      require('./articleLink').articleLink($quickDiff.find('.editLink'))
       if (param.isPreview === true) {
-        $('.quick-diff button.toDiffPage').hide()
+        $quickDiff.find('button.toDiffPage').hide()
         $diffArea
           .find('.diff-otitle')
           .html('<b>' + _msg('diff-title-original-content') + '</b>')
@@ -235,93 +223,75 @@ var quickDiff = function (param) {
           .find('.diff-ntitle')
           .html('<b>' + _msg('diff-title-your-content') + '</b>')
       }
-      if (
-        data.compare.fromsize === undefined ||
-        data.compare.tosize === undefined
-      ) {
+      if (compare.fromsize === undefined || compare.tosize === undefined) {
         $diffArea.find('.diffSize').hide()
       }
       // 无上一版本或下一版本
-      if (!data.compare?.fromrevid && !param.isPreview) {
+      if (!compare.fromrevid && !param.isPreview) {
         $diffArea
           .find('.diff-otitle')
-          .html('')
+          .empty()
           .append(
             $('<span>', {
               class: 'noPrevVerson',
-              text:
-                data?.warnings?.compare?.['*'] || 'Previous version not exist',
+              text: warnings?.compare?.warnings || 'Previous version not exist',
             })
           )
       }
-      if (!data.compare?.torevid && !param.isPreview) {
+      if (!compare.torevid && !param.isPreview) {
         $diffArea
           .find('.diff-otitle')
-          .html('')
+          .empty()
           .append(
             $('<span>', {
               class: 'noNextVerson',
-              text: data?.warnings?.compare?.['*'] || 'Next version not exist',
+              text: warnings?.compare?.warnings || 'Next version not exist',
             })
           )
       }
       // GitHub@issue#5 修复被隐藏版本的问题
-      if (data.compare.fromtexthidden !== undefined) {
+      if (compare.fromtexthidden !== undefined) {
         $diffArea
           .find('.diff-otitle .diff-version')
           .addClass('diff-hidden-history')
       }
-      if (data.compare.totexthidden !== undefined) {
+      if (compare.totexthidden !== undefined) {
         $diffArea
           .find('.diff-ntitle .diff-version')
           .addClass('diff-hidden-history')
       }
-      if (data.compare.fromuserhidden !== undefined) {
+      if (compare.fromuserhidden !== undefined) {
         $diffArea
           .find('.diff-otitle .diff-user')
           .addClass('diff-hidden-history')
       }
-      if (data.compare.touserhidden !== undefined) {
+      if (compare.touserhidden !== undefined) {
         $diffArea
           .find('.diff-ntitle .diff-user')
           .addClass('diff-hidden-history')
       }
-      if (data.compare.fromcommenthidden !== undefined) {
+      if (compare.fromcommenthidden !== undefined) {
         $diffArea.find('.diff-comment').addClass('diff-hidden-history')
       }
-      if (data.compare.tocommenthidden !== undefined) {
+      if (compare.tocommenthidden !== undefined) {
         $diffArea
           .find('.diff-ntitle .diff-comment')
           .addClass('diff-hidden-history')
       }
-      if (data.error) {
-        console.warn('[InPageEdit] 快速差异获取时系统告知出现问题')
-        $diffArea.html(
-          _msg('diff-error') +
-            ': ' +
-            data.error.info +
-            '(<code>' +
-            data.error.code +
-            '</code>)'
-        )
-      }
     })
     .fail(function (errorCode, errorThrown) {
       console.warn('[InPageEdit] 快速差异获取失败')
+      const html = _error(errorCode, errorThrown)
       $loading.hide()
-      if (
-        errorThrown.error &&
-        errorThrown.error.info &&
-        errorThrown.error.code
-      ) {
+      if (errorThrown.errors) {
         $diffArea
           .show()
           .html(
             _msg('diff-error') +
               ': ' +
-              errorThrown.error.info +
+              html +
               '(<code>' +
-              errorThrown.error.code +
+              errorCode +
               '</code>)'
           )
       } else {
