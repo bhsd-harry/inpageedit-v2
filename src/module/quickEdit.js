@@ -680,6 +680,7 @@ var quickEdit = function (options) {
       )
       function close() {
         $(window).off('beforeunload')
+        modal.options.keepContent = false
         modal.options.beforeClose = ''
         modal.close()
         ssi_modal.notify('info', {
@@ -691,6 +692,7 @@ var quickEdit = function (options) {
       }
       function closeNoReload() {
         $(window).off('beforeunload')
+        modal.options.keepContent = false
         modal.options.beforeClose = ''
         modal.close()
       }
