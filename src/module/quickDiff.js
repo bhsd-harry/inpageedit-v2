@@ -12,7 +12,7 @@ const quickDiff = function (param) {
   mw.hook('InPageEdit.quickDiff').fire()
   mw.loader.load(['mediawiki.legacy.shared', 'mediawiki.diff.styles'])
   let $modalTitle, $diffArea, $loading
-  const $quickDiff = $('.quick-diff')
+  let $quickDiff = $('.quick-diff')
   if ($quickDiff.length > 0) {
     console.info('[InPageEdit] Quick diff 正在加载新内容')
     $modalTitle = $quickDiff.find('.pageName')
@@ -41,13 +41,14 @@ const quickDiff = function (param) {
         },
       ],
     })
+    $quickDiff = $('.quick-diff')
   }
   $loading
     .show()
     .css('margin-top', $quickDiff.find('.ssi-modalContent').height() / 2)
   $quickDiff.find('.toDiffPage').off('click')
   param.action = 'compare'
-  param.prop = 'diff|diffsize|rel|ids|title|user|comment|parsedcomment|size'
+  param.prop = 'diff|rel|ids|title|user|parsedcomment|size'
   param.formatversion = 2
   param.errorformat = 'html'
   if (param.totext) {
