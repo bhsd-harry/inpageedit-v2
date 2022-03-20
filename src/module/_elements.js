@@ -22,10 +22,10 @@ const $link = ({ page, link, href, text, html }) => {
 }
 const $progress =
   '<div class="ipe-progress" style="width: 100%"><div class="ipe-progress-bar"></div></div>'
-const $checkbox = ({ label, checked, id, className }) => {
+const $checkbox = ({ label, checked, disabled, id, className }) => {
   return $('<label>', { class: className })
     .append(
-      $('<input>', { type: 'checkbox', checked, id }),
+      $('<input>', { type: 'checkbox', checked, disabled, id }),
       $('<span>', { html: label })
     )
     .css({
