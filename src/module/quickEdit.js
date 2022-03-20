@@ -2,8 +2,9 @@ const { mwApi, config } = require('./util')
 
 const { _msg } = require('./_msg')
 const { _hasRight } = require('./_hasRight')
+const { _error } = require('./_error')
 
-const { $br, $progress } = require('./_elements')
+const { $br, $progress, $checkbox } = require('./_elements')
 
 const { preference } = require('./preference')
 const { progress } = require('./progress')
@@ -15,7 +16,7 @@ const { linksHere } = require('./linksHere')
  * @module quickEdit 快速编辑模块
  * @param {{ page: string; revision?: number; section?: number; reload?: boolean }} options
  */
-var quickEdit = function (options) {
+const quickEdit = function (options) {
   /** 获取设定信息，设置缺省值 **/
   options = options || {}
   if (typeof options === 'string') {
@@ -23,72 +24,66 @@ var quickEdit = function (options) {
       page: options || config.wgPageName,
     }
   }
-  var defaultOptions = {
+  const defaultOptions = {
     page: config.wgPageName,
     pageId: -1,
     revision: null,
-    summaryRevision: '',
     section: null,
-    editText: '',
-    editMinor: false,
-    editSummary: _msg('preference-summary-default'),
     editNotice: '',
-    outSideClose: true,
-    jsonGet: {
-      action: 'parse',
-      page: options.page || config.wgPageName,
-      prop: 'wikitext|langlinks|categories|templates|images|sections',
-      format: 'json',
-    },
-    jsonPost: {},
     pageDetail: {},
     jumpTo: '',
     reload: true,
-    watchList: 'preferences',
   }
+  const jsonGet = {
+    action: 'parse',
+    page: options.page || config.wgPageName,
+    prop: 'wikitext|categories|templates|images|sections',
+    // formatversion: 2,
+  }
+  let summaryRevision = ''
 
   /** 获取用户设置 **/
-  var userPreference = preference.get()
+  const userPreference = preference.get()
 
   /** 缓存时间戳 **/
-  var date = new Date(),
-    timestamp = date.getTime(),
-    now = date.toISOString()
+  const now = Date.now()
 
   /** 将选项合并并标准化 **/
   options = $.extend({}, defaultOptions, options, userPreference)
 
-  if (options.revision && options.revision !== config.wgCurRevisionId) {
-    ssi_modal.notify('warning', {
-      className: 'in-page-edit',
-      content: _msg('notify-editing-history'),
-      title: _msg('notify-info'),
-    })
-    delete options.jsonGet.page
-    options.jsonGet.oldid = options.revision
-    options.summaryRevision = `(${_msg(
-      'editor-summary-rivision'
-    )} [[Special:Diff/${options.revision}]])`
-  }
-  if (options.section && options.section !== 'new') {
-    options.jsonGet.section = options.section
-  }
   if (options.section === 'new') {
     delete options.revision
+  } else if (options.section) {
+    jsonGet.section = options.section
+  }
+  if (options.revision) {
+    delete jsonGet.page
+    jsonGet.oldid = options.revision
+    summaryRevision = `(${_msg(
+      'editor-summary-rivision'
+    )} [[Special:Diff/${options.revision}]])`
+    // FIXME: options.page可能不是当前页面
+    if (options.revision !== config.wgCurRevisionId) {
+      ssi_modal.notify('warning', {
+        className: 'in-page-edit',
+        content: _msg('notify-editing-history'),
+        title: _msg('notify-info'),
+      })
+    }
   }
 
   // 模态框内部
-  var $modalTitle = $('<span>').append(
+  const $modalTitle = $('<span>').append(
     _msg('editor-title-editing') +
       ': <u class="editPage">' +
       options.page.replace(/_/g, ' ') +
       '</u>'
   )
-  var $editArea = $('<textarea>', {
+  const $editArea = $('<textarea>', {
     class: 'editArea',
     style: 'margin-top: 0;',
   })
-  var $optionsLabel = $('<div>', {
+  const $optionsLabel = $('<div>', {
     class: 'editOptionsLabel hideBeforeLoaded',
   }).append(
     $('<section>', { class: 'detailArea' }).append(
@@ -98,27 +93,25 @@ var quickEdit = function (options) {
       }),
       $('<div>', { class: 'detailBtnGroup' }).append(
         $('<a>', {
-          href: 'javascript:;',
+          href: '#',
           class: 'detailBtn',
           id: 'showTemplates',
           text: _msg('editor-detail-button-templates'),
         }),
         ' | ',
         $('<a>', {
-          href: 'javascript:;',
+          href: '#',
           class: 'detailBtn',
           id: 'showImages',
           text: _msg('editor-detail-button-images'),
         }),
         ' | ',
         $('<a>', {
-          href: 'javascript:;',
+          href: '#',
           class: 'detailBtn',
           id: 'linksHereBtn',
           text: _msg('links-here'),
           'data-page-name': options.page,
-        }).on('click', function () {
-          linksHere(options.page)
         })
       )
     ),
@@ -129,51 +122,35 @@ var quickEdit = function (options) {
       class: 'editSummary',
       id: 'editSummary',
       placeholder: 'Edit via InPageEdit~',
-      value: options.editSummary.replace(/\$oldid/gi, options.summaryRevision),
+      value: options.editSummary.replace(/\$oldid\b/gi, summaryRevision),
     }),
     $br,
-    $('<label>').append(
-      $('<input>', {
-        type: 'checkbox',
-        class: 'editMinor',
-        id: 'editMinor',
-        checked: options.editMinor,
-      }),
-      $('<span>', { text: _msg('markAsMinor') })
-    ),
+    $checkbox({
+      label: _msg('markAsMinor'),
+      className: 'editMinor',
+      id: 'editMinor',
+      checked: options.editMinor,
+    }),
     ' ',
-    /**
-     * watchlist 选项处理逻辑：
-     * - undefined 或 'preferences' 视为 preferences（默认），此时默认锁上 watchlist 复选框
-     * - null, '' 或 'nochange' 视为 nochange，watchlist 复选框暂时锁上，待 API 请求返回后解锁并设置初始状态
-     * - 其他真值视为 watch
-     * - 其他假值视为 unwatch
-     */
-    $('<label>').append(
-      $('<input>', {
-        type: 'checkbox',
-        class: 'watchList',
-        id: 'watchList',
-        checked: options.watchList === 'watch',
-        disabled: ['nochange', 'preferences'].includes(options.watchList),
-      }),
-      $('<span>', { text: _msg('watchThisPage') })
-    ),
+    $checkbox({
+      label: _msg('watchThisPage'),
+      className: 'watchList',
+      id: 'watchList',
+      checked: options.watchList === 'watch',
+      disabled: ['nochange', 'preferences'].includes(options.watchList),
+    }),
     ' ',
     $br,
-    $('<label>').append(
-      $('<input>', {
-        type: 'checkbox',
-        class: 'reloadPage',
-        id: 'reloadPage',
-        checked: options.reload,
-      }),
-      $('<span>', { text: _msg('editor-reload-page') })
-    )
+    $checkbox({
+      label: _msg('editor-reload-page'),
+      className: 'reloadPage',
+      id: 'reloadPage',
+      checked: options.reload,
+    })
   )
   if (['nochange', 'preferences'].includes(options.watchList)) {
     $optionsLabel
-      .find('.watchList')
+      .find('#watchList')
       .parent()
       .one('click', function (e) {
         e.preventDefault()
@@ -181,12 +158,12 @@ var quickEdit = function (options) {
       })
       .attr('title', _msg('unlockWatchList'))
   }
-  var $newSectionTitleInput = $('<input>', {
+  const $newSectionTitleInput = $('<input>', {
     type: 'text',
     class: 'newSectionTitleInput',
     placeholder: _msg('editor-new-section'),
   })
-  var $modalContent = $('<div>').append(
+  const $modalContent = $('<div>').append(
     $progress,
     $('<section>', { class: 'hideBeforeLoaded' }).append(
       // 编辑框
@@ -212,7 +189,7 @@ var quickEdit = function (options) {
     title: $modalTitle,
     content: $modalContent,
     outSideClose: options.outSideClose,
-    className: 'in-page-edit ipe-editor timestamp-' + timestamp,
+    className: 'in-page-edit ipe-editor',
     sizeClass: 'large',
 
     /* 按钮 */
@@ -310,7 +287,7 @@ var quickEdit = function (options) {
           var text = $editArea.val()
           quickPreview({
             title: options.page,
-            text: text,
+            text,
             pst: true,
             section: options.section === 'new' ? 'new' : undefined,
             sectiontitle:
@@ -406,7 +383,7 @@ var quickEdit = function (options) {
 
       // 解析页面内容
       mwApi
-        .get(options.jsonGet)
+        .get(jsonGet)
         .done(function (data) {
           console.timeEnd('[InPageEdit] 获取页面源代码')
           contentDone(data)
@@ -421,21 +398,29 @@ var quickEdit = function (options) {
       // 页面内容获取完毕，后续工作
       function contentDone(data) {
         options.pageDetail = data
+        let editText
 
         if (data.error) {
           console.warn('[InPageEdit]警告：无法获取页面内容')
-          options.editText = '<!-- ' + data.error.info + ' -->'
+          editText = '<!-- ' + data.error.info + ' -->'
           options.pageId = -1
           $optionsLabel.find('.detailArea').hide()
         } else {
-          options.editText =
+          editText =
             options.section === 'new' ? '' : data.parse.wikitext['*']
           options.pageId = data.parse.pageid
+          if ('不是最新版本') { // FIXME
+            ssi_modal.notify('warning', {
+              className: 'in-page-edit',
+              content: _msg('notify-editing-history'),
+              title: _msg('notify-info'),
+            })
+          }
         }
         // 设定一堆子样式
         $modalContent.find('.ipe-progress').hide()
         $modalWindow.find('.hideBeforeLoaded').fadeIn(500)
-        $editArea.val(options.editText + '\n')
+        $editArea.val(editText + '\n')
 
         var summaryVal
         if (options.section !== null && options.section !== 'new') {
@@ -701,11 +686,13 @@ var quickEdit = function (options) {
   })
 
   // 页面详情模块
-  $optionsLabel.find('.detailBtnGroup .detailBtn').on('click', function () {
-    var $this = $(this),
-      id = $this.attr('id'),
-      content = $('<ul>')
-    switch (id) {
+  $optionsLabel.find('.detailBtnGroup .detailBtn').on('click', function (e) {
+    e.preventDefault()
+    const content = $('<ul>')
+    switch (this.id) {
+      case 'linksHereBtn':
+        linksHere(options.page)
+        return
       case 'showTemplates': {
         const templates = options.pageDetail.parse.templates
         for (let i = 0; i < templates.length; i++) {
@@ -790,7 +777,6 @@ var quickEdit = function (options) {
           title: _msg('editor-detail-title-images'),
           content,
         })
-        break
       }
     }
     $('.in-page-edit.quick-edit-detail .quickEditTemplate').on(
@@ -868,7 +854,7 @@ var quickEdit = function (options) {
     modal
   ) {
     progress(_msg('editor-title-saving'))
-    options.jsonPost = {
+    const jsonPost = {
       action: 'edit',
       starttimestamp: $modalContent.data('starttimestamp'),
       basetimestamp: $modalContent.data('basetimestamp'),
@@ -880,25 +866,25 @@ var quickEdit = function (options) {
       errorformat: 'plaintext',
     }
     if (section !== undefined && section !== '' && section !== null) {
-      options.jsonPost.section = section
+      jsonPost.section = section
     }
     if (sectiontitle !== undefined && sectiontitle !== '') {
-      options.jsonPost.sectiontitle = sectiontitle
+      jsonPost.sectiontitle = sectiontitle
       options.jumpTo = '#' + sectiontitle
     }
 
     mwApi
-      .postWithToken('csrf', options.jsonPost)
+      .postWithToken('csrf', jsonPost)
       .done(saveSuccess)
       .fail(saveError)
 
     // 保存正常
-    function saveSuccess(data, feedback, errorThrown) {
+    function saveSuccess(data) {
       if (data.edit.result === 'Success') {
         progress(true)
+        let content
         // 是否重载页面
         if ($optionsLabel.find('.reloadPage').prop('checked')) {
-          var content
           $(window).unbind('beforeunload')
           content = _msg('notify-save-success')
           setTimeout(function () {
@@ -926,29 +912,22 @@ var quickEdit = function (options) {
           content,
         })
       } else {
-        saveError(data, feedback, errorThrown)
+        saveError(data)
       }
     }
 
     // 保存失败
-    function saveError(errorCode, feedback, errorThrown) {
-      progress(false)
-      var data = errorThrown || errorCode // 规范错误代码
-      var errorInfo,
+    function saveError(errorCode, errorThrown) {
+      let errorInfo,
         errorMore = ''
-      if (data.errors !== undefined) {
-        errorCode = data.errors[0].code
-        errorInfo = data.errors[0]['*']
-        errorMore = ''
-      } else if (data.edit.result !== 'Success') {
-        errorCode = data.edit.code || 'Unknown'
-        errorInfo = data.edit.info || 'Reason unknown.'
-        errorMore = data.edit.warning || ''
+      if (typeof errorCode === 'object') {
+        errorInfo = errorCode.edit.info || 'Reason unknown.'
+        errorMore = errorCode.edit.warning || ''
+        errorCode = errorCode.edit.code || 'Unknown'
       } else {
-        errorCode = 'unknown'
-        errorInfo = 'Reason unknown.'
-        errorMore = 'Please contact plug-in author or try again.'
+        errorInfo = _error(errorCode, errorThrown)
       }
+      progress(false)
       ssi_modal.show({
         className: 'in-page-edit',
         sizeClass: 'dialog',
@@ -967,7 +946,6 @@ var quickEdit = function (options) {
       })
 
       console.error('[InPageEdit] Submit failed: \nCode: ' + errorCode)
-      return
     }
   }
 }
