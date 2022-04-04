@@ -20,7 +20,7 @@
   "scripts": {
     "build": "npm run lint && npm run clear && webpack && cross-env MINIFY=1 webpack",
     "lint": "eslint ./src",
-    "dev": "webpack serve",
+    "dev": "../node_modules/.bin/webpack serve",
     "clear": "rimraf dev dist",
     "pretty": "prettier --write ./src"
   },
