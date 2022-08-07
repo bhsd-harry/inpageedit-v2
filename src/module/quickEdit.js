@@ -219,14 +219,14 @@ const quickEdit = function (options) {
             })
             return
           }
-          function confirm(result) {
+          async function confirm(result) {
             if (result) {
               let summaryVal = $optionsLabel.find('.editSummary').val()
-              const sectiontitle =
-                options.section === 'new'
-                  ? $newSectionTitleInput.val()
-                  : undefined
               if (options.section === 'new') {
+                const sectiontitle = (await mwApi.post({
+                  text: `==${$newSectionTitleInput.val()}==`,
+                  contentmodel: 'wikitext', prop: 'sections', formatversion: 2,
+                })).parse.sections[0].anchor
                 summaryVal = summaryVal.replace(
                   /\$section/gi,
                   `/* ${sectiontitle} */`
