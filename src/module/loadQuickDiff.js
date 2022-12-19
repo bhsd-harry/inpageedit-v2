@@ -105,8 +105,12 @@ const loadQuickDiff = function (container) {
   // 查看历史页面的比较按钮与快速编辑
   if (config.wgAction === 'history') {
     $('.historysubmit.mw-history-compareselectedversions-button').after(
-      $('<button>', { text: _msg('quick-diff') })
-        .click((e) => {
+      $('<button>')
+        .text(_msg('quick-diff'))
+        .on('click', function (e) {
+          if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
+            return
+          }
           e.preventDefault()
           const before = $('.selected.before').data('mw-revid'),
             after = $('.selected.after').data('mw-revid')

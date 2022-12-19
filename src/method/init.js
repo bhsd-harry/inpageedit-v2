@@ -24,14 +24,16 @@ async function init() {
   // 加载样式表
   loadStyles()
   // 等待前置项目
-  require('../../../Plugins/src/lib/ssi-modal/ssi-modal.js')
-  syncI18nData(noCache)
-  await initQueryData()
-
-  mw.hook('InPageEdit.init.modal').fire({ ssi_modal: window.ssi_modal })
+  await Promise.all([
+    syncI18nData(noCache),
+    require('../../../Plugins/src/lib/ssi-modal/ssi-modal.js'),
+    initQueryData(),
+  ])
 
   const { _msg } = require('../module/_msg')
   mw.hook('InPageEdit.init.i18n').fire({ _msg })
+
+  mw.hook('InPageEdit.init.modal').fire({ ssi_modal: window.ssi_modal })
 
   // 导入全部模块
   const { about } = require('../module/about')
@@ -109,7 +111,7 @@ async function init() {
 
   // 花里胡哨的加载提示
   console.info(
-`    ____      ____                   ______    ___ __ 
+    `    ____      ____                   ______    ___ __ 
    /  _/___  / __ \\____ _____ ____  / ____/___/ (_) /_
    / // __ \\/ /_/ / __ \`/ __ \`/ _ \\/ __/ / __  / / __/
  _/ // / / / ____/ /_/ / /_/ /  __/ /___/ /_/ / / /_  

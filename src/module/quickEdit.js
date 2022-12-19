@@ -51,6 +51,21 @@ const quickEdit = function (options) {
   /** 将选项合并并标准化 **/
   options = $.extend({}, defaultOptions, options, userPreference)
 
+  if (options.revision && options.revision !== config.wgCurRevisionId) {
+    ssi_modal.notify('warning', {
+      className: 'in-page-edit',
+      content: _msg('notify-editing-history'),
+      title: _msg('notify-info'),
+    })
+    delete options.jsonGet.page
+    options.jsonGet.oldid = options.revision
+    options.summaryRevision = `(${_msg(
+      'editor-summary-revision'
+    )} [[Special:Permalink/${options.revision}]])`
+  }
+  if (options.section && options.section !== 'new') {
+    options.jsonGet.section = options.section
+  }
   if (options.section === 'new') {
     delete options.revision
   } else if (options.section) {
@@ -103,7 +118,7 @@ const quickEdit = function (options) {
           href: '#',
           class: 'detailBtn',
           id: 'showImages',
-          text: _msg('editor-detail-button-images'),
+          text: _msg('editor-detail-button-files'),
         }),
         ' | ',
         $('<a>', {
@@ -776,7 +791,7 @@ const quickEdit = function (options) {
         ssi_modal.show({
           className: 'in-page-edit quick-edit-detail',
           sizeClass: 'dialog',
-          title: _msg('editor-detail-title-images'),
+          title: _msg('editor-detail-title-files'),
           content,
         })
       }
@@ -863,9 +878,9 @@ const quickEdit = function (options) {
       text,
       title: page,
       watchlist,
-      minor,
       summary,
       errorformat: 'plaintext',
+      ...(minor ? { minor: true } : { notminor: true }),
     }
     if (section !== undefined && section !== '' && section !== null) {
       jsonPost.section = section
