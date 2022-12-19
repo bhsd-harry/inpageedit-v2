@@ -66,7 +66,7 @@ const quickPreview = function (params, modalSize = 'large', center = false) {
             .fadeIn(500)
             .html(_msg('preview-error'))
         }
-        )
+      )
     },
   })
 }

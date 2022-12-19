@@ -57,13 +57,13 @@ var quickRedirect = function (type = 'to') {
         ),
         ...(type === 'from'
           ? [
-            $br,
-            $('<label>', {
-              for: 'redirect-fragment',
-              text: _msg('redirect-question-fragment'),
-            }),
-            $('<input>', { id: 'redirect-fragment', style: 'width:96%' }),
-          ]
+              $br,
+              $('<label>', {
+                for: 'redirect-fragment',
+                text: _msg('redirect-question-fragment'),
+              }),
+              $('<input>', { id: 'redirect-fragment', style: 'width:96%' }),
+            ]
           : []),
         $br,
         $('<label>', { for: 'redirect-reason', text: _msg('editSummary') }),
