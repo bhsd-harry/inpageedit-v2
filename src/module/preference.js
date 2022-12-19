@@ -412,9 +412,9 @@ const preference = {
             const description = val.description || ''
             const author = val.author
               ? $link({
-                  href: 'https://github.com/' + val.author,
-                  text: '@' + val.author,
-                })
+                href: 'https://github.com/' + val.author,
+                text: '@' + val.author,
+              })
               : '-'
             $ul.append(
               $('<li>').append(

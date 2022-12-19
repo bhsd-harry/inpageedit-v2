@@ -57,13 +57,13 @@ var quickRedirect = function (type = 'to') {
         ),
         ...(type === 'from'
           ? [
-              $br,
-              $('<label>', {
-                for: 'redirect-fragment',
-                text: _msg('redirect-question-fragment'),
-              }),
-              $('<input>', { id: 'redirect-fragment', style: 'width:96%' }),
-            ]
+            $br,
+            $('<label>', {
+              for: 'redirect-fragment',
+              text: _msg('redirect-question-fragment'),
+            }),
+            $('<input>', { id: 'redirect-fragment', style: 'width:96%' }),
+          ]
           : []),
         $br,
         $('<label>', { for: 'redirect-reason', text: _msg('editSummary') }),
@@ -116,11 +116,11 @@ var quickRedirect = function (type = 'to') {
 
           let promise = Promise.resolve()
           if (preference.get('noRedirectIfConvertedTitleExists')) {
-            promise = mwApi.get({ titles: json.title, converttitles: 1, formatversion: 2 }).done(data => {
+            promise = mwApi.get({ titles: json.title, converttitles: 1, formatversion: 2 }).done((data) => {
               const convertedTitle = data.query.pages[0]
               if (convertedTitle?.missing !== true) {
                 failed('articleexists', { fromPage: convertedTitle.title, errors: [{
-                  '*':  _msg('notify-redirect-converted-error')
+                  '*': _msg('notify-redirect-converted-error'),
                 }] })
                 throw null
               }

@@ -426,13 +426,6 @@ const quickEdit = function (options) {
           editText =
             options.section === 'new' ? '' : data.parse.wikitext['*']
           options.pageId = data.parse.pageid
-          if ('不是最新版本') { // FIXME
-            ssi_modal.notify('warning', {
-              className: 'in-page-edit',
-              content: _msg('notify-editing-history'),
-              title: _msg('notify-info'),
-            })
-          }
         }
         // 设定一堆子样式
         $modalContent.find('.ipe-progress').hide()
@@ -707,94 +700,94 @@ const quickEdit = function (options) {
     e.preventDefault()
     const content = $('<ul>')
     switch (this.id) {
-      case 'linksHereBtn':
-        linksHere(options.page)
-        return
-      case 'showTemplates': {
-        const templates = options.pageDetail.parse.templates
-        for (let i = 0; i < templates.length; i++) {
-          let templateName = templates[i]['*']
-          $('<li>')
-            .append(
-              $('<a>', {
-                href: mw.util.getUrl(templateName),
-                target: '_blank',
-                text: templateName,
-              }),
-              ' (',
-              $('<a>', {
-                href: 'javascript:;',
-                text: _msg('quick-edit'),
-                class: 'quickEditTemplate',
-                'data-template-name': templateName,
-              }),
-              ' | ',
-              $('<a>', {
-                href: 'javascript:;',
-                text: _msg('links-here'),
-                class: 'quickEditLinksHere',
-              }).on('click', function () {
-                linksHere(templateName)
-              }),
-              ')'
-            )
-            .appendTo(content)
-        }
-        ssi_modal.show({
-          className: 'in-page-edit quick-edit-detail',
-          sizeClass: 'dialog',
-          title: _msg('editor-detail-title-templates'),
-          content: content,
-        })
-        break
+    case 'linksHereBtn':
+      linksHere(options.page)
+      return
+    case 'showTemplates': {
+      const templates = options.pageDetail.parse.templates
+      for (let i = 0; i < templates.length; i++) {
+        let templateName = templates[i]['*']
+        $('<li>')
+          .append(
+            $('<a>', {
+              href: mw.util.getUrl(templateName),
+              target: '_blank',
+              text: templateName,
+            }),
+            ' (',
+            $('<a>', {
+              href: 'javascript:;',
+              text: _msg('quick-edit'),
+              class: 'quickEditTemplate',
+              'data-template-name': templateName,
+            }),
+            ' | ',
+            $('<a>', {
+              href: 'javascript:;',
+              text: _msg('links-here'),
+              class: 'quickEditLinksHere',
+            }).on('click', function () {
+              linksHere(templateName)
+            }),
+            ')'
+          )
+          .appendTo(content)
       }
-      case 'showImages': {
-        const images = options.pageDetail.parse.images
-        for (let i = 0; i < images.length; i++) {
-          const imageName = images[i]
-          $('<li>')
-            .append(
-              $('<a>', {
-                href: mw.util.getUrl('File:' + imageName),
-                target: '_balnk',
-                text: imageName,
-              }),
-              ' (',
-              $('<a>', {
-                href: 'javascript:;',
-                class: 'quickViewImage',
-                text: _msg('editor-detail-images-quickview'),
-                'data-image-name': imageName,
-              }),
-              ' | ',
-              $('<a>', {
-                href:
+      ssi_modal.show({
+        className: 'in-page-edit quick-edit-detail',
+        sizeClass: 'dialog',
+        title: _msg('editor-detail-title-templates'),
+        content: content,
+      })
+      break
+    }
+    case 'showImages': {
+      const images = options.pageDetail.parse.images
+      for (let i = 0; i < images.length; i++) {
+        const imageName = images[i]
+        $('<li>')
+          .append(
+            $('<a>', {
+              href: mw.util.getUrl('File:' + imageName),
+              target: '_balnk',
+              text: imageName,
+            }),
+            ' (',
+            $('<a>', {
+              href: 'javascript:;',
+              class: 'quickViewImage',
+              text: _msg('editor-detail-images-quickview'),
+              'data-image-name': imageName,
+            }),
+            ' | ',
+            $('<a>', {
+              href:
                   config.wgScript +
                   '?title=Special:Upload&wpDestFile=' +
                   imageName +
                   '&wpForReUpload=1',
-                target: '_balnk',
-                text: _msg('editor-detail-images-upload'),
-              }),
-              '|',
-              $('<a>', {
-                href: 'javascript:;',
-                text: _msg('links-here'),
-                class: 'quickEditLinksHere',
-              }).on('click', function () {
-                linksHere(`File:${imageName}`)
-              }),
-              ')'
-            )
-            .appendTo(content)
-        }
-        ssi_modal.show({
-          className: 'in-page-edit quick-edit-detail',
-          sizeClass: 'dialog',
-          title: _msg('editor-detail-title-files'),
-          content,
-        })
+              target: '_balnk',
+              text: _msg('editor-detail-images-upload'),
+            }),
+            '|',
+            $('<a>', {
+              href: 'javascript:;',
+              text: _msg('links-here'),
+              class: 'quickEditLinksHere',
+            }).on('click', function () {
+              linksHere(`File:${imageName}`)
+            }),
+            ')'
+          )
+          .appendTo(content)
       }
+      ssi_modal.show({
+        className: 'in-page-edit quick-edit-detail',
+        sizeClass: 'dialog',
+        title: _msg('editor-detail-title-files'),
+        content,
+      })
+    }
     }
     $('.in-page-edit.quick-edit-detail .quickEditTemplate').on(
       'click',
