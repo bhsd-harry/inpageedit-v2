@@ -57,7 +57,7 @@ const quickPreview = function (params, modalSize = 'large', center = false) {
             .fadeIn(500)
             .html(content)
         })
-        .fail(function () {
+        .catch(function () {
           console.timeEnd('[InPageEdit] Request preview')
           console.warn('[InPageEdit] 预览失败')
           const $content = $(document.getElementById(modal.modalId))

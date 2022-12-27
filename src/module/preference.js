@@ -401,7 +401,7 @@ const preference = {
             pluginStore.get().then((list) => {
               pluginStore.saveCache(list)
               showPluginList(list)
-            })
+            }, () => {})
           }
         }
         function showPluginList(list) {

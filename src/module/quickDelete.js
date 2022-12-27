@@ -105,7 +105,7 @@ const quickDelete = function (page, givenReason = '') {
                       content: _msg('notify-delete-success', page),
                     })
                   })
-                  .fail(function (errorCode, errorThrown) {
+                  .catch(function (errorCode, errorThrown) {
                     const html = _error(errorCode, errorThrown)
                     ssi_modal.notify('error', {
                       className: 'in-page-edit',
