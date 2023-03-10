@@ -7,19 +7,19 @@ const { _uri } = require('./_uri')
 
 /**
  * @module articleLink 获取段落编辑以及编辑链接
- * @param {string | HTMLAnchorElement | JQuery<HTMLAnchorElement>} el Anchors to inject edit links
+ * @param {string | HTMLAnchorElement | JQuery<HTMLAnchorElement>} elements Anchors to inject edit links
  */
-function articleLink(el) {
-  if (!el) {
+function articleLink(elements) {
+  if (!elements) {
     if (preference.get('redLinkQuickEdit') === true) {
-      el = $('#mw-content-text a, #firstHeading a')
+      elements = $('#mw-content-text a, #firstHeading a')
     } else {
-      el = $('#mw-content-text a:not(.new), #firstHeading a:not(.new)')
+      elements = $('#mw-content-text a:not(.new), #firstHeading a:not(.new)')
     }
   }
   /** @type {JQuery<HTMLAnchorElement>} */
-  const $el = $(el)
-  $el.each(function () {
+  const $elements = $(elements)
+  $elements.each(function () {
     const uri = _uri(this)
     if (uri === null || uri.title === undefined) {
       return
